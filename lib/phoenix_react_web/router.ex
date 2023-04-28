@@ -21,9 +21,10 @@ defmodule PhoenixReactWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", PhoenixReactWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", PhoenixReactWeb do
+    pipe_through :api
+    resources "/tasks", TaskController, except: [:new, :edit]
+  end
 
   scope "/app", PhoenixReactWeb do
     get "/", WebappController, :index
