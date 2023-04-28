@@ -21,6 +21,7 @@ defmodule PhoenixReactWeb.Endpoint do
     at: "/",
     from: :phoenix_react,
     gzip: false,
+    # webapp was added to static paths to serve react app
     only: PhoenixReactWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the

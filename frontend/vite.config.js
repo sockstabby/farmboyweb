@@ -4,6 +4,20 @@ import react from "@vitejs/plugin-react";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // Forward all requests made by our React frontend to `localhost:3000/api`
+  // to our Phoenix backend running at `localhost:4000`.
+  // This is only necessary during development.
+  // In production, our Phoenix and React apps are served from the same
+  // domain and port, which makes this configuration unecessary.
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:4000",
+        secure: false,
+        ws: true,
+      },
+    },
+  },
   // using the `webapp` base path for production builds
   // So we can leverage Phoenix static assets plug to deliver
   // our React app directly from our final Elixir app,

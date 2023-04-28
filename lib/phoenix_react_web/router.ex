@@ -25,6 +25,11 @@ defmodule PhoenixReactWeb.Router do
   #   pipe_through :api
   # end
 
+  scope "/app", PhoenixReactWeb do
+    get "/", WebappController, :index
+    get "/*path", WebappController, :index
+  end
+
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:phoenix_react, :dev_routes) do
     # If you want to use the LiveDashboard in production, you should put
