@@ -1,3 +1,27 @@
+
+# DB API Endpoint Generation
+
+    #generate db stuff
+    mix phx.gen.context TaskAdmin Task tasks taskid:integer name:string  schedule:string enabled:boolean config:string slack:boolean
+
+    #generate crud
+    mix phx.gen.json TaskAdmin Task tasks taskid:integer name:string  schedule:string enabled:boolean config:string slack:boolean --no-context --no-schema
+
+    # add this to router
+    resources "/users", UserController
+
+
+    config will have everything needed for the task to execute
+
+    For example
+    Tasks of type monobject config looks like this
+    {
+        method: "some method"
+        args: []
+    }
+
+
+
 # Build Instructions
 
 Make sure endpoint is configured correctly in config/runtime.exs
