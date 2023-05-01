@@ -1,14 +1,18 @@
 import { useEffect } from "react";
-import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter,
+  Link,
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
 import { Tasks } from "./Tasks.jsx";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import NavDropdown from "react-bootstrap/NavDropdown";
-import Button from "react-bootstrap/Button";
-
 import reactLogo from "./assets/react.svg";
+import { TaskEdit } from "./TaskEdit.jsx";
 
 function App() {
   /**
@@ -25,43 +29,10 @@ function App() {
   }, []);
 
   return CollapsibleExample();
-
-  /*
-  return (
-    <div className="container">
-      {" "}
-      <div className="title-bar">
-        <div>TaskMonger</div>
-
-        <img src={reactLogo} className="logo" alt="Vite logo" />
-      </div>
-      <BrowserRouter basename="app">
-        <div className="nav-bar">
-          <nav className="links">
-            <Link to="/">Home</Link>
-            <Link to="/tasks">Tasks</Link>
-            <br />
-          </nav>
-        </div>
-        <div className="main">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="tasks" element={<TasksPage />} />
-          </Routes>
-        </div>
-        <div class="footer"></div>
-      </BrowserRouter>
-    </div>
-  );
-  */
 }
 
 function TasksPage() {
   return <Tasks />;
-}
-
-function HomePage() {
-  return <div>Home</div>;
 }
 
 function CollapsibleExample() {
@@ -103,8 +74,10 @@ function CollapsibleExample() {
         </Navbar>
         <div className="main">
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<TasksPage />} />
             <Route path="tasks" element={<TasksPage />} />
+            <Route path="edit-task" element={<TaskEdit mode="edit" />} />
+            <Route path="add-task" element={<TaskEdit mode="add" />} />
           </Routes>
         </div>
 
