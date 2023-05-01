@@ -13,27 +13,122 @@ const TASK_MAP = {
   7: "NYISO FTR Collector",
 };
 
+function MultiInput() {
+  return (
+    <div className={"parent"}>
+      <div className="div1"></div>
+      <div className="div2">label</div>
+      <div className="div3">control</div>
+      <div className="div4">checkbox</div>
+    </div>
+  );
+}
+
+const allEqual = (arr) => arr.every((val) => val === arr[0]);
+
+const getConsensus = (items, key, noConsensusValue = "") => {
+  const vals = items.map((i) => i[key]);
+
+  const ret = allEqual(vals) ? vals[0] : noConsensusValue;
+  return ret;
+};
+
 export function TaskEdit({ mode }) {
   const { state } = useLocation();
 
-  const [name, setName] = useState(mode === "edit" ? state[0].name : "");
+  const [tasks, setTasks] = useState(state);
+
+  const [name, setName] = useState(
+    mode === "edit" ? getConsensus(state, "name") : ""
+  );
   const [enabled, setEnabled] = useState(
-    mode === "edit" ? state[0].enabled : true
+    mode === "edit" ? getConsensus(state, "enabled", false) : true
   );
 
   const [config, setConfig] = useState(
-    mode === "edit" ? state[0].config : "{}"
+    mode === "edit" ? getConsensus(state, "config", "") : "{}"
   );
   const [schedule, setSchedule] = useState(
-    mode === "edit" ? state[0].schedule : "* * * * *"
+    mode === "edit" ? getConsensus(state, "schedule") : "* * * * *"
   );
   const [slackEnabled, setSlackEnabled] = useState(
-    mode === "edit" ? state[0].slack : true
+    mode === "edit" ? getConsensus(state, "slack", false) : true
   );
-  const [taskid, setTaskid] = useState(mode === "edit" ? state[0].taskid : 1);
+  const [taskid, setTaskid] = useState(
+    mode === "edit" ? getConsensus(state, "taskid", 0) : 1
+  );
+
+  console.log("taskid", taskid);
 
   const navigate = useNavigate();
+
+  async function addTask(task) {
+    const response = await fetch("/api/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        task: {
+          name,
+          taskid,
+          schedule,
+          enabled,
+          config,
+          slack: slackEnabled,
+        },
+      }),
+    });
+    console.log("response", response);
+  }
+
+  async function editTasks(tasks) {
+    const responses = [];
+
+    tasks.forEach(async (task) => {
+      console.log("editing task", task.id, task);
+
+      const obj = {
+        task: {
+          name: task.name,
+          taskid: task.taskid,
+          schedule: schedule,
+          enabled: enabled,
+          config: config,
+          slack: slackEnabled,
+        },
+      };
+
+      console.log("saving", obj);
+      const response = await fetch(`/api/tasks/${task.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          task: {
+            name: task.name,
+            taskid: task.taskid,
+            schedule: schedule,
+            enabled: enabled,
+            config: config,
+            slack: slackEnabled,
+          },
+        }),
+      });
+
+      console.log("response=", response);
+      responses.push(response);
+    });
+  }
+
   const onSave = () => {
+    if (mode === "add") {
+      console.log("calling save task");
+      addTask();
+    }
+
+    if (mode === "edit") {
+      console.log("calling edit task");
+      editTasks(tasks);
+    }
+
     navigate(-1);
   };
 
@@ -67,18 +162,27 @@ export function TaskEdit({ mode }) {
     setTaskid(event.target.value);
   };
 
+  let editTitle = "Editing Existing Task";
+
+  if (mode === "edit") {
+    editTitle =
+      tasks.length > 1 ? "Editing Existing Tasks" : "Editing Existing Task";
+  }
+
   return (
     <div>
+      <MultiInput />
       <div className="edit-page">
         <div className="edit-inputs">
-          {mode === "edit" ? (
-            <h5>Editing Existing Task</h5>
-          ) : (
-            <h5>Add New Task</h5>
-          )}
+          {mode === "edit" ? <h5>{editTitle}</h5> : <h5>Add New Task</h5>}
           <div className="vertical-input">
             Task Name:
-            <input type="text" value={name} onChange={setNameVal}></input>
+            <input
+              type="text"
+              disabled={mode === "edit" && tasks.length > 1}
+              value={name}
+              onChange={setNameVal}
+            ></input>
           </div>
           <div className="checkbox-vertical-input">
             <Form.Check

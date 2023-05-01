@@ -37,6 +37,26 @@ export function Tasks() {
     });
   }, []);
 
+  async function removeTasks(tasks) {
+    const responses = [];
+
+    tasks.forEach(async (task) => {
+      console.log("deleting task", task.id);
+      const response = await fetch(`/api/tasks/${task.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      axios.get("/api/tasks").then((response) => {
+        console.log("tasks = ", response);
+        setRowData(response.data.data);
+      });
+
+      console.log("response=", response);
+      responses.push(response);
+    });
+  }
+
   const addTask = () => {
     console.log("add button clicked", getSelectedRowData());
     navigate("/add-task");
@@ -60,14 +80,13 @@ export function Tasks() {
   };
 
   const removeTask = () => {
-    console.log("remove button clicked");
-
-    console.log(getSelectedRowData());
+    console.log("remove button clicked", getSelectedRowData());
+    removeTasks(getSelectedRowData());
+    setSelectedRow(-1);
   };
 
   const filterGrid = (e) => {
     const text = e.target.value;
-
     grid.current.api.setQuickFilter(text);
   };
 
@@ -105,14 +124,18 @@ export function Tasks() {
           ref={grid}
           defaultColDef={setDefaultColDef}
           rowData={rowData}
-          rowSelection="single"
+          rowSelection="multiple"
           columnDefs={columnDefs}
           rowHeight={30}
           onRowSelected={rowSelected}
         ></AgGridReact>
       </div>
       <div className="grid-footer-controls">
-        <Button variant="outline-danger" onClick={removeTask}>
+        <Button
+          variant="outline-danger"
+          disabled={selectedRow === -1}
+          onClick={removeTask}
+        >
           Delete Selected Items
         </Button>{" "}
       </div>
