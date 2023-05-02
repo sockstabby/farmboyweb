@@ -13,17 +13,6 @@ const TASK_MAP = {
   7: "NYISO FTR Collector",
 };
 
-function MultiInput() {
-  return (
-    <div className={"parent"}>
-      <div className="div1"></div>
-      <div className="div2">label</div>
-      <div className="div3">control</div>
-      <div className="div4">checkbox</div>
-    </div>
-  );
-}
-
 const allEqual = (arr) => arr.every((val) => val === arr[0]);
 
 const getConsensus = (items, key, noConsensusValue = "") => {
@@ -169,69 +158,132 @@ export function TaskEdit({ mode }) {
       tasks.length > 1 ? "Editing Existing Tasks" : "Editing Existing Task";
   }
 
-  return (
-    <div>
-      <MultiInput />
-      <div className="edit-page">
-        <div className="edit-inputs">
-          {mode === "edit" ? <h5>{editTitle}</h5> : <h5>Add New Task</h5>}
-          <div className="vertical-input">
-            Task Name:
-            <input
-              type="text"
-              disabled={mode === "edit" && tasks.length > 1}
-              value={name}
-              onChange={setNameVal}
-            ></input>
-          </div>
-          <div className="checkbox-vertical-input">
+  function wrapSingleEdit(className, label, control) {
+    return (
+      <div className={className}>
+        {label}
+        {control}
+      </div>
+    );
+  }
+
+  function wrapMultiEdit(className, inputName, label, control) {
+    return (
+      <div className={className}>
+        <div className={"parent"}>
+          <div className="div1"></div>
+          <div className="div2">{label}</div>
+          <div className="div3">{control}</div>
+          <div className="div4">
+            {" "}
             <Form.Check
               type="checkbox"
               id="Enabled"
-              label="Enabled"
-              checked={enabled}
-              onChange={setEnabledVal}
+              label=""
+              checked={true}
+              onChange={() => {}}
             />
           </div>
-          <div className="vertical-input">
-            Task Id:
-            <Form.Select
-              aria-label="Default select example"
-              onChange={setTaskidVal}
-            >
-              <option>{TASK_MAP[taskid]}</option>
-              <option value={1}>{TASK_MAP[1]}</option>
-              <option value={2}>{TASK_MAP[2]}</option>
-              <option value={3}>{TASK_MAP[3]}</option>
-              <option value={4}>{TASK_MAP[4]}</option>
-              <option value={7}>{TASK_MAP[7]}</option>
-            </Form.Select>
-          </div>
-          <div className="vertical-input">
-            Task Configuration:
-            <input
-              type="text"
-              value={config}
-              onChange={setConfigurationVal}
-            ></input>
-          </div>
-          <div className="vertical-input">
-            Schedule:
-            <input
-              type="text"
-              value={schedule}
-              onChange={setScheduleVal}
-            ></input>
-          </div>
-          <div className="checkbox-vertical-input">
-            <Form.Check
-              type="checkbox"
-              id="Send Slack"
-              label="Send Slack Message"
-              checked={slackEnabled}
-              onChange={setSlackEnabledVal}
-            />
-          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const nameInput = (
+    <input
+      type="text"
+      disabled={mode === "edit" && tasks.length > 1}
+      value={name}
+      onChange={setNameVal}
+    ></input>
+  );
+
+  const enabledInput = (
+    <Form.Check
+      type="checkbox"
+      id="Enabled"
+      label="Enabled"
+      checked={enabled}
+      onChange={setEnabledVal}
+    />
+  );
+
+  const taskIdInput = (
+    <Form.Select aria-label="Default select example" onChange={setTaskidVal}>
+      <option>{TASK_MAP[taskid]}</option>
+      <option value={1}>{TASK_MAP[1]}</option>
+      <option value={2}>{TASK_MAP[2]}</option>
+      <option value={3}>{TASK_MAP[3]}</option>
+      <option value={4}>{TASK_MAP[4]}</option>
+      <option value={7}>{TASK_MAP[7]}</option>
+    </Form.Select>
+  );
+
+  const taskConfigInput = (
+    <input type="text" value={config} onChange={setConfigurationVal}></input>
+  );
+
+  const scheduleInput = (
+    <input type="text" value={schedule} onChange={setScheduleVal}></input>
+  );
+
+  const slackInput = (
+    <Form.Check
+      type="checkbox"
+      id="Send Slack"
+      label="Send Slack Message"
+      checked={slackEnabled}
+      onChange={setSlackEnabledVal}
+    />
+  );
+
+  return (
+    <div>
+      <div className="edit-page">
+        <div className="edit-inputs">
+          {mode === "edit" ? <h5>{editTitle}</h5> : <h5>Add New Task</h5>}
+
+          {mode === "edit" && tasks.length > 1
+            ? wrapMultiEdit("vertical-input", "name", "Task Name", nameInput)
+            : wrapSingleEdit("vertical-input", "Task Name", nameInput)}
+
+          {mode === "edit" && tasks.length > 1
+            ? wrapMultiEdit("checkbox-vertical-input", "name", "", enabledInput)
+            : wrapSingleEdit(
+                "checkbox-vertical-input",
+                "Enabled",
+                enabledInput
+              )}
+
+          {mode === "edit" && tasks.length > 1
+            ? wrapMultiEdit("vertical-input", "name", "Task", taskIdInput)
+            : wrapSingleEdit("vertical-input", "Task", taskIdInput)}
+
+          {mode === "edit" && tasks.length > 1
+            ? wrapMultiEdit(
+                "vertical-input",
+                "taskid",
+                "Task Id",
+                taskConfigInput
+              )
+            : wrapSingleEdit("vertical-input", "Task Id", taskConfigInput)}
+
+          {mode === "edit" && tasks.length > 1
+            ? wrapMultiEdit(
+                "vertical-input",
+                "schedule",
+                "Schedule",
+                scheduleInput
+              )
+            : wrapSingleEdit("vertical-input", "Schedule", scheduleInput)}
+
+          {mode === "edit" && tasks.length > 1
+            ? wrapMultiEdit("checkbox-vertical-input", "slack", "", slackInput)
+            : wrapSingleEdit(
+                "checkbox-vertical-input",
+                "Send Slack Message:",
+                slackInput
+              )}
 
           <div className="form-button-container">
             <Button variant="light" onClick={onCancel}>

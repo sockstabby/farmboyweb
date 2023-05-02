@@ -149,14 +149,15 @@ a:active {
 
 .parent {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(5, 1fr);
+  grid-template-columns: 40px;
+  grid-template-rows: repeat(2, 1fr);
   grid-column-gap: 0px;
   grid-row-gap: 0px;
 }
 
 .div1 {
   grid-area: 1 / 1 / 2 / 2;
+  max-width: 40px;
 }
 .div2 {
   grid-area: 1 / 2 / 2 / 3;
