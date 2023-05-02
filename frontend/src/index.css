@@ -68,6 +68,10 @@
   padding-bottom: 3px;
 }
 
+.grid-controls button {
+  border: 1px solid gray !important;
+}
+
 .title-text {
   font-size: x-large;
 }
