@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
-import { FaThumbsUp } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa";
 
 import { FaEdit } from "react-icons/fa";
