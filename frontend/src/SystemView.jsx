@@ -12,9 +12,15 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
+import { Socket } from "./phoenix.js";
+
+let socket = new Socket("/socket", { params: { token: "MYTOKEN" } });
+socket.connect();
+
 export function SystemView({ mode }) {
   const grid = useRef();
 
+  const channelRef = useRef(null);
   const navigate = useNavigate();
 
   const [columnDefs] = useState([
@@ -57,6 +63,37 @@ export function SystemView({ mode }) {
       addRowItem();
     }, 1000 * 2);
   });
+
+  function receivedMessage(msg, payload) {}
+
+  useEffect(() => {
+    function joinRoom() {
+      console.log("joining");
+      const channel = socket.channel("room:123", {});
+      channelRef.current = channel;
+
+      channel
+        .join()
+        .receive("ok", (resp) => {
+          console.log("Joined successfully", resp);
+        })
+        .receive("error", (resp) => {
+          console.log("Unable to join", resp);
+        });
+
+      channel.on("new_msg", (payload) => {
+        console.log("got a message", payload);
+        receivedMessage("new_msg", payload);
+      });
+    }
+    joinRoom();
+    return () => {
+      if (channelRef.current) {
+        console.log("leaving");
+        channelRef.current.leave();
+      }
+    };
+  }, []);
 
   const filterGrid = (e) => {
     const text = e.target.value;
