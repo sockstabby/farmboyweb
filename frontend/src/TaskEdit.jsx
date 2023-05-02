@@ -35,7 +35,7 @@ export function TaskEdit({ mode }) {
   );
 
   const [config, setConfig] = useState(
-    mode === "edit" ? getConsensus(state, "config", "") : "{}"
+    mode === "edit" ? getConsensus(state, "config", "{}") : "{}"
   );
   const [schedule, setSchedule] = useState(
     mode === "edit" ? getConsensus(state, "schedule") : "* * * * *"
@@ -47,9 +47,17 @@ export function TaskEdit({ mode }) {
     mode === "edit" ? getConsensus(state, "taskid", 0) : 1
   );
 
+  const [multiEditCheckState, setMultiEditCheckState] = useState({});
+
   console.log("taskid", taskid);
 
   const navigate = useNavigate();
+
+  let isValid = true;
+
+  if (mode === "add") {
+    isValid = config !== "" && schedule !== "" && name !== "";
+  }
 
   async function addTask(task) {
     const response = await fetch("/api/tasks", {
@@ -72,12 +80,14 @@ export function TaskEdit({ mode }) {
   async function editTasks(tasks) {
     const responses = [];
 
+    const multiEdit = tasks.length > 1;
+
     tasks.forEach(async (task) => {
       console.log("editing task", task.id, task);
 
       const obj = {
         task: {
-          name: task.name,
+          name: tasks.length > 1 ? task.name : name,
           taskid: task.taskid,
           schedule: schedule,
           enabled: enabled,
@@ -92,12 +102,45 @@ export function TaskEdit({ mode }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           task: {
-            name: task.name,
-            taskid: task.taskid,
-            schedule: schedule,
-            enabled: enabled,
-            config: config,
-            slack: slackEnabled,
+            // in multi the value will either be the input control or the current value
+            // follow this pattter
+            // this first one is the exception we can have multiple tasks with the same name
+            name: multiEdit ? task.name : name,
+
+            taskid:
+              multiEdit === false
+                ? taskid
+                : isMultiEditChecked("taskid")
+                ? taskid
+                : task.taskid,
+
+            schedule:
+              multiEdit === false
+                ? schedule
+                : isMultiEditChecked("schedule")
+                ? schedule
+                : task.schedule,
+
+            enabled:
+              multiEdit === false
+                ? enabled
+                : isMultiEditChecked("enabled")
+                ? enabled
+                : task.enabled,
+
+            config:
+              multiEdit === false
+                ? config
+                : isMultiEditChecked("config")
+                ? config
+                : task.config,
+
+            slack:
+              multiEdit === false
+                ? slackEnabled
+                : isMultiEditChecked("slackEnabled")
+                ? slackEnabled
+                : task.slack,
           },
         }),
       });
@@ -154,8 +197,7 @@ export function TaskEdit({ mode }) {
   let editTitle = "Editing Existing Task";
 
   if (mode === "edit") {
-    editTitle =
-      tasks.length > 1 ? "Editing Existing Tasks" : "Editing Existing Task";
+    editTitle = tasks.length > 1 ? "Edit Multiple Tasks" : "Edit Task";
   }
 
   function wrapSingleEdit(className, label, control) {
@@ -166,6 +208,21 @@ export function TaskEdit({ mode }) {
       </div>
     );
   }
+
+  const setMultiEditCheckStateVal = (inputName, val) => {
+    const mergedObj = { ...multiEditCheckState, ...{ [inputName]: val } };
+    setMultiEditCheckState(mergedObj);
+  };
+
+  const isMultiEditChecked = (inputName) => {
+    const ret =
+      multiEditCheckState.hasOwnProperty(inputName) &&
+      multiEditCheckState[inputName] === true
+        ? true
+        : false;
+
+    return ret;
+  };
 
   function wrapMultiEdit(className, inputName, label, control) {
     return (
@@ -180,8 +237,10 @@ export function TaskEdit({ mode }) {
               type="checkbox"
               id="Enabled"
               label=""
-              checked={true}
-              onChange={() => {}}
+              checked={isMultiEditChecked(inputName)}
+              onChange={(event) => {
+                setMultiEditCheckStateVal(inputName, event.target.checked);
+              }}
             />
           </div>
         </div>
@@ -242,13 +301,21 @@ export function TaskEdit({ mode }) {
       <div className="edit-page">
         <div className="edit-inputs">
           {mode === "edit" ? <h5>{editTitle}</h5> : <h5>Add New Task</h5>}
+          {mode === "edit" && tasks.length > 1 && (
+            <p>Only items explicitly checked will be applied to all tasks. </p>
+          )}
 
           {mode === "edit" && tasks.length > 1
             ? wrapMultiEdit("vertical-input", "name", "Task Name", nameInput)
             : wrapSingleEdit("vertical-input", "Task Name", nameInput)}
 
           {mode === "edit" && tasks.length > 1
-            ? wrapMultiEdit("checkbox-vertical-input", "name", "", enabledInput)
+            ? wrapMultiEdit(
+                "checkbox-vertical-input",
+                "enabled",
+                "",
+                enabledInput
+              )
             : wrapSingleEdit(
                 "checkbox-vertical-input",
                 "Enabled",
@@ -256,17 +323,21 @@ export function TaskEdit({ mode }) {
               )}
 
           {mode === "edit" && tasks.length > 1
-            ? wrapMultiEdit("vertical-input", "name", "Task", taskIdInput)
+            ? wrapMultiEdit("vertical-input", "taskid", "Task", taskIdInput)
             : wrapSingleEdit("vertical-input", "Task", taskIdInput)}
 
           {mode === "edit" && tasks.length > 1
             ? wrapMultiEdit(
                 "vertical-input",
-                "taskid",
-                "Task Id",
+                "config",
+                "Task Configuration",
                 taskConfigInput
               )
-            : wrapSingleEdit("vertical-input", "Task Id", taskConfigInput)}
+            : wrapSingleEdit(
+                "vertical-input",
+                "Task Configuration",
+                taskConfigInput
+              )}
 
           {mode === "edit" && tasks.length > 1
             ? wrapMultiEdit(
@@ -278,7 +349,12 @@ export function TaskEdit({ mode }) {
             : wrapSingleEdit("vertical-input", "Schedule", scheduleInput)}
 
           {mode === "edit" && tasks.length > 1
-            ? wrapMultiEdit("checkbox-vertical-input", "slack", "", slackInput)
+            ? wrapMultiEdit(
+                "checkbox-vertical-input",
+                "slackEnabled",
+                "",
+                slackInput
+              )
             : wrapSingleEdit(
                 "checkbox-vertical-input",
                 "Send Slack Message:",
@@ -289,7 +365,7 @@ export function TaskEdit({ mode }) {
             <Button variant="light" onClick={onCancel}>
               Cancel
             </Button>
-            <Button variant="light" onClick={onSave}>
+            <Button variant="light" disabled={!isValid} onClick={onSave}>
               Save
             </Button>
           </div>
