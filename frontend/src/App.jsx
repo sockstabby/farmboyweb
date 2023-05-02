@@ -15,6 +15,30 @@ import reactLogo from "./assets/react.svg";
 import { TaskEdit } from "./TaskEdit.jsx";
 import { SystemView } from "./SystemView.jsx";
 
+import { Socket } from "./phoenix.js";
+
+let socket = new Socket("/socket", { params: { token: "MYTOKEN" } });
+
+socket.connect();
+
+// Now that you are connected, you can join channels with a topic.
+// Let's assume you have a channel with a topic named `room` and the
+// subtopic is its id - in this case 42:
+let channel = socket.channel("room:123", {});
+
+channel
+  .join()
+  .receive("ok", (resp) => {
+    console.log("Joined successfully", resp);
+  })
+  .receive("error", (resp) => {
+    console.log("Unable to join", resp);
+  });
+
+channel.on("new_msg", (payload) => {
+  console.log("got a message", payload);
+});
+
 function App() {
   /**
    * During development we can still access the base path at `/`

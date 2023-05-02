@@ -16,6 +16,11 @@ export default defineConfig({
         secure: false,
         ws: true,
       },
+      "/socket": {
+        target: "http://localhost:4000",
+        secure: false,
+        ws: true,
+      },
     },
   },
   // using the `webapp` base path for production builds

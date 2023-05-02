@@ -4,8 +4,6 @@
 
 .container {
   display: block;
-  //padding-left: 100px;
-  //padding-right: 100px;
 }
 
 .title-bar {
@@ -29,8 +27,6 @@
 }
 .main {
   height: calc(100vh - 110px);
-  //height: calc(100vh - 100px);
-
   padding-top: 10px;
   padding-left: 100px;
   padding-right: 100px;
@@ -45,12 +41,9 @@
   grid-area: footer;
   font-size: xx-small;
   height: 40px;
-  //border: 1px solid black;
-  //margin: 5px;
   background-color: white;
   background-color: cornsilk;
   border-radius: 5px;
-  //border: 1px solid gray;
 }
 
 .links {
@@ -117,7 +110,6 @@ a:active {
 
   flex-direction: row;
   height: 100%;
-  //border: 1px solid gray;
   justify-content: center;
 }
 
