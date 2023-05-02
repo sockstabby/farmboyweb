@@ -13,6 +13,7 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import reactLogo from "./assets/react.svg";
 import { TaskEdit } from "./TaskEdit.jsx";
+import { SystemView } from "./SystemView.jsx";
 
 function App() {
   /**
@@ -56,7 +57,7 @@ function CollapsibleExample() {
                 <Link className="nav-link" to="/">
                   Tasks
                 </Link>
-                <Link className="nav-link" to="/tasks">
+                <Link className="nav-link" to="/system">
                   System
                 </Link>
                 <Link className="nav-link" to="/tasks">
@@ -78,6 +79,7 @@ function CollapsibleExample() {
             <Route path="tasks" element={<TasksPage />} />
             <Route path="edit-task" element={<TaskEdit mode="edit" />} />
             <Route path="add-task" element={<TaskEdit mode="add" />} />
+            <Route path="system" element={<SystemView />} />
           </Routes>
         </div>
 
