@@ -19,7 +19,7 @@ defmodule TaskStatusListener.Supervisor do
     env = String.to_atom(System.get_env("MIX_ENV") || "dev")
 
     children = [
-      {Cluster.Supervisor, [topologies(), [name: BackgroundJob.ClusterSupervisor]]},
+      {Cluster.Supervisor, [topologies(), [name: Cluster.Supervisor]]},
       HordeTaskRouter.HordeRegistry,
       HordeTaskRouter.NodeObserver,
       {Phoenix.PubSub, name: :tasks},
