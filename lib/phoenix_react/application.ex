@@ -10,6 +10,7 @@ defmodule PhoenixReact.Application do
     children = [
       # Start the Telemetry supervisor
       PhoenixReactWeb.Telemetry,
+      TaskStatusListener.Supervisor,
       # Start the Ecto repository
       PhoenixReact.Repo,
       # Start the PubSub system

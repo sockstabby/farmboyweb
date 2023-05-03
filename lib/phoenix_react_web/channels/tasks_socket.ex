@@ -37,7 +37,7 @@ defmodule PhoenixReactWeb.TasksSocket do
   # performing token verification on connect.
   @impl true
   def connect(_params, socket, _connect_info) do
-    Logger.debug("connect called")
+    Logger.info("CONNECT CALLED CONNECT CALLED CONNECT CALLED CONNECT CALLED CONNECT CALLED CONNECT CALLED ")
 
     {:ok, socket}
   end

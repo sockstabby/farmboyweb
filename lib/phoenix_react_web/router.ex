@@ -24,6 +24,7 @@ defmodule PhoenixReactWeb.Router do
   scope "/api", PhoenixReactWeb do
     pipe_through :api
     resources "/tasks", TaskController, except: [:new, :edit]
+    post "/run", TaskRunnerController, :api_get
   end
 
   scope "/app", PhoenixReactWeb do
