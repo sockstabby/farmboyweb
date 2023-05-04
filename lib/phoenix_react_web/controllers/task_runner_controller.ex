@@ -3,7 +3,7 @@ defmodule PhoenixReactWeb.TaskRunnerController do
   require Logger
 
 
-  def api_get(conn, params) do
+  def api_get(conn, _params) do
     Logger.info( "run called")
 
     body = conn.body_params
@@ -22,5 +22,20 @@ defmodule PhoenixReactWeb.TaskRunnerController do
 
     conn |> json(%{message: "Hello" })
   end
+
+
+  def get_task_state(conn, _params) do
+    pid = GenServer.whereis(via_tuple("taskrouter"))
+    state = :sys.get_state(pid)
+
+    tasks = Enum.map(state.tasks, fn i -> %{worker: i.worker, method: i.method, args: i.args } end )
+    new_state = Map.put(state, :taskinfo, tasks)
+    new_state = Map.delete(new_state, :tasks)
+    conn |> json(new_state)
+
+  end
+
+  def via_tuple(name), do: {:via, Horde.Registry, {HordeTaskRouter.HordeRegistry, name}}
+
 
 end

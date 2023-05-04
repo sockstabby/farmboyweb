@@ -1,4 +1,3 @@
-
 # DB API Endpoint Generation
 
     #generate db stuff
@@ -19,8 +18,6 @@
         method: "some method"
         args: []
     }
-
-
 
 # Build Instructions
 
@@ -74,8 +71,12 @@ Make sure endpoint is configured correctly in config/runtime.exs
 
     PHX_HOST=localhost _build/prod/rel/phoenix_react/bin/phoenix_react start
 
+
+    or when developing this
+
+    iex --name phoenix@127.0.0.1 --cookie asdf -S  mix phx.server
+
     # You should an output similar to the following
     19:52:53.813 [info] Running PhoenixReactWeb.Endpoint with cowboy 2.9.0 at :::4000 (http)
     19:52:53.814 [info] Access PhoenixReactWeb.Endpoint at http://localhost:4000
     # Original Generated Readme Below
-
