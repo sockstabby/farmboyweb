@@ -8,6 +8,8 @@ defmodule PhoenixReact.TaskAdmin do
 
   alias PhoenixReact.TaskAdmin.Task
 
+  require Logger
+
   @doc """
   Returns the list of tasks.
 
@@ -50,10 +52,35 @@ defmodule PhoenixReact.TaskAdmin do
 
   """
   def create_task(attrs \\ %{}) do
-    %Task{}
+    ret = %Task{}
     |> Task.changeset(attrs)
     |> Repo.insert()
+
+    GenServer.cast({:via, Horde.Registry, {HordeTaskRouter.HordeRegistry, "taskrouter"}},
+      {:task_item_added, ret})
+    ret
   end
+
+  def notify_schedule_change(_changed_task, nil) do
+    Logger.warn("the task to update does not exist")
+  end
+
+  def notify_schedule_change(changed_task, saved_task) do
+    changed_schedule = Map.get(changed_task, "schedule")
+    saved_schedule = Map.get(saved_task, :schedule)
+    Logger.debug("saved schedule #{saved_schedule}")
+    Logger.debug("changed schedule #{changed_schedule}")
+
+    if changed_schedule != saved_schedule do
+      Logger.debug("schedule changed. notifying the taskrouter")
+      GenServer.cast({:via, Horde.Registry, {HordeTaskRouter.HordeRegistry, "taskrouter"}},
+      {:task_schedule_changed, saved_task})
+
+    else
+      Logger.debug("schedule did not change. dont bother the taskrouter")
+    end
+  end
+
 
   @doc """
   Updates a task.
@@ -68,6 +95,11 @@ defmodule PhoenixReact.TaskAdmin do
 
   """
   def update_task(%Task{} = task, attrs) do
+    # here we see if the schdule of the task had change
+    # if so we need to notify the router
+    task_stored = Task |> Repo.get(task.id)
+    notify_schedule_change(attrs, task_stored)
+
     task
     |> Task.changeset(attrs)
     |> Repo.update()
@@ -86,6 +118,8 @@ defmodule PhoenixReact.TaskAdmin do
 
   """
   def delete_task(%Task{} = task) do
+    GenServer.cast({:via, Horde.Registry, {HordeTaskRouter.HordeRegistry, "taskrouter"}},
+      {:task_item_removed, task})
     Repo.delete(task)
   end
 
