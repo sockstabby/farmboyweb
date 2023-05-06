@@ -14,15 +14,9 @@ import Navbar from "react-bootstrap/Navbar";
 import reactLogo from "./assets/react.svg";
 import { TaskEdit } from "./TaskEdit.jsx";
 import { SystemView } from "./SystemView.jsx";
+import { LogView } from "./LogView.jsx";
 
 function App() {
-  /**
-   * During development we can still access the base path at `/`
-   * And this hook will make sure that we land on the base `/app`
-   * path which will mount our App as usual.
-   * In production, Phoenix makes sure that the `/app` route is
-   * always mounted within the first request.
-   * */
   useEffect(() => {
     if (window.location.pathname === "/") {
       window.location.replace("/app");
@@ -60,7 +54,7 @@ function CollapsibleExample() {
                 <Link className="nav-link" to="/system">
                   System
                 </Link>
-                <Link className="nav-link" to="/tasks">
+                <Link className="nav-link" to="/logs">
                   Logs
                 </Link>
                 <Link className="nav-link" to="/tasks">
@@ -80,6 +74,7 @@ function CollapsibleExample() {
             <Route path="edit-task" element={<TaskEdit mode="edit" />} />
             <Route path="add-task" element={<TaskEdit mode="add" />} />
             <Route path="system" element={<SystemView />} />
+            <Route path="logs" element={<LogView />} />
           </Routes>
         </div>
 

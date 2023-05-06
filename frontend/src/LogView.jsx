@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import axios from "axios";
 
 import { useNavigate, useLocation } from "react-router-dom";
 import Form from "react-bootstrap/Form";
@@ -18,38 +17,83 @@ import { Socket } from "./phoenix.js";
 let socket = new Socket("/socket", { params: { token: "MYTOKEN" } });
 socket.connect();
 
-export function SystemView({ mode }) {
+export function LogView({ mode }) {
   const grid = useRef();
 
   const channelRef = useRef(null);
   const navigate = useNavigate();
 
   const [columnDefs] = useState([
-    { field: "worker", startTime: "Node" },
-    { field: "method", taskName: "Method" },
-    { field: "args", headerName: "Config" },
+    { field: "node", headerName: "Node Name" },
+    { field: "taskName", taskName: "Task Name" },
+    { field: "startTime", startTime: "Start Time" },
   ]);
 
   const [rowData, setRowData] = useState([]);
   const options = { sortable: true, filter: true };
   const setDefaultColDef = useMemo(() => options, []);
 
-  function fetchTaskState() {
-    console.log("AEee!");
-    axios.get("/api/taskstate").then((response) => {
-      console.log("/api/taskstate response =", response.data);
+  function addRowItem() {
+    const possibleNodes = ["Node 1", "Node 2", "Node 3"];
+    const possibleTasks = ["Task 1", "Task 2", "Task 3", "Task4", "Task 5"];
 
-      const runningTasks = response.data.taskinfo;
+    let random = Math.random() * 10;
+    const nodeIndex = Math.floor(random % possibleNodes.length);
 
-      setRowData(runningTasks);
-    });
+    random = Math.random() * 10;
+    const taskIndex = Math.floor(random % possibleTasks.length);
+
+    console.log("nodeIndex = ", nodeIndex);
+    console.log("taskIndex = ", taskIndex);
+
+    const current = [
+      ...rowData,
+      {
+        node: possibleNodes[nodeIndex],
+        taskName: possibleTasks[taskIndex],
+        startTime: "safas",
+      },
+    ];
+
+    setRowData(current);
   }
 
   useEffect(() => {
     setTimeout(() => {
-      fetchTaskState();
+      addRowItem();
     }, 1000 * 2);
   });
+
+  function receivedMessage(msg, payload) {}
+
+  useEffect(() => {
+    function joinRoom() {
+      console.log("joining");
+      const channel = socket.channel("room:123", {});
+      channelRef.current = channel;
+
+      channel
+        .join()
+        .receive("ok", (resp) => {
+          console.log("Joined successfully", resp);
+        })
+        .receive("error", (resp) => {
+          console.log("Unable to join", resp);
+        });
+
+      channel.on("new_msg", (payload) => {
+        console.log("got a message", payload);
+        receivedMessage("new_msg", payload);
+      });
+    }
+    joinRoom();
+    return () => {
+      if (channelRef.current) {
+        console.log("leaving");
+        channelRef.current.leave();
+      }
+    };
+  }, []);
 
   const filterGrid = (e) => {
     const text = e.target.value;

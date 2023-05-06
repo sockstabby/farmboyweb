@@ -72,6 +72,9 @@ Make sure endpoint is configured correctly in config/runtime.exs
     PHX_HOST=localhost _build/prod/rel/phoenix_react/bin/phoenix_react start
 
 
+     RELEASE_COOKIE=asdf PHX_HOST=localhost _build/prod/rel/phoenix_react/bin/phoenix_react start
+
+
     or when developing this
 
     iex --name phoenix@127.0.0.1 --cookie asdf -S  mix phx.server
