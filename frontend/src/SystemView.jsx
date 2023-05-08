@@ -13,6 +13,8 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
+import moment from "moment";
+
 import { Socket } from "./phoenix.js";
 
 let socket = new Socket("/socket", { params: { token: "MYTOKEN" } });
@@ -28,6 +30,7 @@ export function SystemView({ mode }) {
     { field: "worker", startTime: "Node" },
     { field: "method", taskName: "Method" },
     { field: "args", headerName: "Config" },
+    { field: "timeElapsed", headerName: "Elapsed Time" },
   ]);
 
   const [rowData, setRowData] = useState([]);
@@ -41,7 +44,20 @@ export function SystemView({ mode }) {
 
       const runningTasks = response.data.taskinfo;
 
-      setRowData(runningTasks);
+      const withTimeElapsed = runningTasks.map((i) => {
+        const tokens = i.time_started.split("+");
+        const ts = tokens[0]; // + "Z";
+        console.log("timeStarted parsed str = ", ts);
+
+        var timeStarted = moment(ts);
+        var now = moment();
+
+        const duration = now.diff(timeStarted, "seconds"); // 1
+
+        return { ...i, ...{ timeElapsed: `${duration}` } };
+      });
+
+      setRowData(withTimeElapsed);
     });
   }
 
