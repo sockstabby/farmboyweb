@@ -5,14 +5,6 @@ import Form from "react-bootstrap/Form";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Button from "react-bootstrap/Button";
 
-const TASK_MAP = {
-  1: "MISO FTR Collector",
-  2: "ERCOT FTR Collector",
-  3: "SPPISO FTR Collector",
-  4: "NEISO FTR Collector",
-  7: "NYISO FTR Collector",
-};
-
 const allEqual = (arr) => arr.every((val) => val === arr[0]);
 
 const getConsensus = (items, key, noConsensusValue = "") => {
@@ -22,18 +14,15 @@ const getConsensus = (items, key, noConsensusValue = "") => {
   return ret;
 };
 
-export function TaskEdit({ mode }) {
+export function TaskEdit({ mode, taskMetaData }) {
   const { state } = useLocation();
-
   const [tasks, setTasks] = useState(state);
-
   const [name, setName] = useState(
     mode === "edit" ? getConsensus(state, "name") : ""
   );
   const [enabled, setEnabled] = useState(
     mode === "edit" ? getConsensus(state, "enabled", false) : true
   );
-
   const [config, setConfig] = useState(
     mode === "edit" ? getConsensus(state, "config", "{}") : "{}"
   );
@@ -44,12 +33,10 @@ export function TaskEdit({ mode }) {
     mode === "edit" ? getConsensus(state, "slack", false) : true
   );
   const [taskid, setTaskid] = useState(
-    mode === "edit" ? getConsensus(state, "taskid", 0) : 1
+    mode === "edit" ? getConsensus(state, "taskid", 1) : 1
   );
 
   const [multiEditCheckState, setMultiEditCheckState] = useState({});
-
-  console.log("taskid", taskid);
 
   const navigate = useNavigate();
 
@@ -74,7 +61,6 @@ export function TaskEdit({ mode }) {
         },
       }),
     });
-    console.log("response", response);
   }
 
   async function editTasks(tasks) {
@@ -83,8 +69,6 @@ export function TaskEdit({ mode }) {
     const multiEdit = tasks.length > 1;
 
     tasks.forEach(async (task) => {
-      console.log("editing task", task.id, task);
-
       const obj = {
         task: {
           name: tasks.length > 1 ? task.name : name,
@@ -96,14 +80,13 @@ export function TaskEdit({ mode }) {
         },
       };
 
-      console.log("saving", obj);
       const response = await fetch(`/api/tasks/${task.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           task: {
             // in multi the value will either be the input control or the current value
-            // follow this pattter
+            // follow this patttern
             // this first one is the exception we can have multiple tasks with the same name
             name: multiEdit ? task.name : name,
 
@@ -145,19 +128,16 @@ export function TaskEdit({ mode }) {
         }),
       });
 
-      console.log("response=", response);
       responses.push(response);
     });
   }
 
   const onSave = () => {
     if (mode === "add") {
-      console.log("calling save task");
       addTask();
     }
 
     if (mode === "edit") {
-      console.log("calling edit task");
       editTasks(tasks);
     }
 
@@ -189,8 +169,6 @@ export function TaskEdit({ mode }) {
   };
 
   const setTaskidVal = (event) => {
-    console.log("setTaskidVal ", event.target.value);
-
     setTaskid(event.target.value);
   };
 
@@ -267,14 +245,24 @@ export function TaskEdit({ mode }) {
     />
   );
 
+  const currentTask = taskMetaData.find((task) => task.taskid === taskid);
+
+  const taskOptions = taskMetaData.map((task) => {
+    return (
+      <option key={task.taskid} value={task.taskid}>
+        {" "}
+        {task.task_display_name}{" "}
+      </option>
+    );
+  });
+
   const taskIdInput = (
-    <Form.Select aria-label="Default select example" onChange={setTaskidVal}>
-      <option>{TASK_MAP[taskid]}</option>
-      <option value={1}>{TASK_MAP[1]}</option>
-      <option value={2}>{TASK_MAP[2]}</option>
-      <option value={3}>{TASK_MAP[3]}</option>
-      <option value={4}>{TASK_MAP[4]}</option>
-      <option value={7}>{TASK_MAP[7]}</option>
+    <Form.Select
+      defaultValue={taskid}
+      aria-label="Default select example"
+      onChange={setTaskidVal}
+    >
+      {taskOptions}
     </Form.Select>
   );
 

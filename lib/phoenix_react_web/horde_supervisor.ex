@@ -22,8 +22,7 @@ defmodule TaskStatusListener.Supervisor do
       {Cluster.Supervisor, [topologies(), [name: Cluster.Supervisor]]},
       HordeTaskRouter.HordeRegistry,
       HordeTaskRouter.NodeObserver,
-      {Phoenix.PubSub, name: :tasks},
-      TaskStatusListener.Listener
+      {Phoenix.PubSub, name: :tasks}
     ]
 
     #children =

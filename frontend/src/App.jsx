@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BrowserRouter,
   Link,
@@ -15,22 +15,132 @@ import reactLogo from "./assets/react.svg";
 import { TaskEdit } from "./TaskEdit.jsx";
 import { SystemView } from "./SystemView.jsx";
 import { LogView } from "./LogView.jsx";
+import moment from "moment";
+import axios from "axios";
+
+import { createContext } from "react";
+import { Socket } from "./phoenix.js";
+
+export const Context = createContext([]);
+
+let socket = new Socket("/socket", { params: { token: "MYTOKEN" } });
+socket.connect();
 
 function App() {
+  const channelRef = useRef(null);
+
+  const [logData, setLogData] = useState([]);
+  const [taskData, setTaskData] = useState([]);
+  const [taskMetaData, setTaskMetaData] = useState([]);
+
+  const [availableTasks, setAvailableTasks] = useState([]);
+
+  const rowsRef = useRef(logData);
+
+  function fetchTaskState() {
+    axios.get("/api/taskstate").then((response) => {
+      const runningTasks = response.data.taskinfo;
+
+      const withTimeElapsed = runningTasks.map((i) => {
+        const tokens = i.time_started.split("+");
+        const ts = tokens[0]; // + "Z";
+
+        var timeStarted = moment(ts);
+        var now = moment();
+
+        const duration = now.diff(timeStarted, "seconds");
+        return { ...i, ...{ timeElapsed: `${duration}` } };
+      });
+
+      const workers = Object.keys(response.data.worker_details);
+
+      const tasks = workers.reduce((acc, current) => {
+        const workerTasks = response.data.worker_details[current];
+        return [...acc, ...workerTasks];
+      }, []);
+
+      const taskMap = tasks.reduce((acc, task) => {
+        return { ...acc, ...{ [task.taskid]: task } };
+      }, {});
+
+      console.log("running tasks", withTimeElapsed);
+
+      setTaskMetaData(Object.values(taskMap));
+      setTaskData(withTimeElapsed);
+    });
+  }
+
+  function receivedMessage(msg, payload) {
+    var now = moment();
+
+    const newRowData = [
+      ...rowsRef.current,
+      {
+        id: payload.id,
+        taskName: payload.method,
+        message: payload.message,
+        node: payload.node,
+        timestamp: moment().toISOString(),
+      },
+    ];
+
+    rowsRef.current = newRowData;
+    setLogData(newRowData);
+  }
+
   useEffect(() => {
     if (window.location.pathname === "/") {
       window.location.replace("/app");
     }
   }, []);
 
-  return CollapsibleExample();
+  useEffect(() => {
+    setTimeout(() => {
+      fetchTaskState();
+    }, 1000 * 2);
+  });
+
+  useEffect(() => {
+    function joinRoom() {
+      const channel = socket.channel("room:123", {});
+      channelRef.current = channel;
+
+      channel
+        .join()
+        .receive("ok", (resp) => {
+          console.log("Joined successfully", resp);
+        })
+        .receive("error", (resp) => {
+          console.log("Unable to join", resp);
+        });
+
+      channel.on("new_msg", (payload) => {
+        receivedMessage("new_msg", payload);
+      });
+    }
+    joinRoom();
+    return () => {
+      if (channelRef.current) {
+        console.log("leaving");
+        channelRef.current.leave();
+      }
+    };
+  }, []);
+
+  return (
+    <MainApp
+      logData={rowsRef.current}
+      taskData={taskData}
+      taskMetaData={taskMetaData}
+    />
+  );
 }
 
 function TasksPage() {
   return <Tasks />;
 }
 
-function CollapsibleExample() {
+function MainApp({ logData, taskData, taskMetaData }) {
   return (
     <BrowserRouter basename="app">
       <div>
@@ -51,7 +161,7 @@ function CollapsibleExample() {
                 <Link className="nav-link" to="/">
                   Tasks
                 </Link>
-                <Link className="nav-link" to="/system">
+                <Link className="nav-link active" to="/system">
                   System
                 </Link>
                 <Link className="nav-link" to="/logs">
@@ -71,10 +181,16 @@ function CollapsibleExample() {
           <Routes>
             <Route path="/" element={<TasksPage />} />
             <Route path="tasks" element={<TasksPage />} />
-            <Route path="edit-task" element={<TaskEdit mode="edit" />} />
-            <Route path="add-task" element={<TaskEdit mode="add" />} />
-            <Route path="system" element={<SystemView />} />
-            <Route path="logs" element={<LogView />} />
+            <Route
+              path="edit-task"
+              element={<TaskEdit mode="edit" taskMetaData={taskMetaData} />}
+            />
+            <Route
+              path="add-task"
+              element={<TaskEdit mode="add" taskMetaData={taskMetaData} />}
+            />
+            <Route path="system" element={<SystemView taskData={taskData} />} />
+            <Route path="logs" element={<LogView logData={logData} />} />
           </Routes>
         </div>
 

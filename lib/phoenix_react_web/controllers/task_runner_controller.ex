@@ -28,7 +28,7 @@ defmodule PhoenixReactWeb.TaskRunnerController do
     pid = GenServer.whereis(via_tuple("taskrouter"))
     state = :sys.get_state(pid)
 
-    tasks = Enum.map(state.tasks, fn i -> %{worker: i.worker, method: i.method, args: i.args, time_started: i.time_started } end )
+    tasks = Enum.map(state.tasks, fn i -> %{id: i.object, worker: i.worker, method: i.method, args: i.args, time_started: i.time_started } end )
     new_state = Map.put(state, :taskinfo, tasks)
     new_state = Map.delete(new_state, :tasks)
     conn |> json(new_state)

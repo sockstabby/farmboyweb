@@ -102,7 +102,7 @@ a:active {
   --ag-header-column-resize-handle-display: block;
   --ag-header-column-resize-handle-height: 100%;
   --ag-header-column-resize-handle-width: 5px;
-  --ag-header-column-resize-handle-color: orange;
+  --ag-header-column-resize-handle-color: lightgray;
 }
 
 .edit-page {
@@ -165,7 +165,14 @@ a:active {
   grid-area: 2 / 1 / 3 / 2;
 }
 
-a {
-  text-decoration: none;
-  border-bottom: #ea215a 0.125em solid;
+.ag-header-cell-resize {
+  width: 2px;
+}
+
+.nav-link active {
+  border-bottom: 2px solid black;
+}
+
+.navbar-nav > .active {
+  border-bottom: 2px solid black;
 }

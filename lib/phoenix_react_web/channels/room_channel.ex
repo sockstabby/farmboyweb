@@ -26,8 +26,8 @@ defmodule PhoenixReactWeb.RoomChannel do
         ) :: {:noreply, any}
 
   def handle_info( {:task_update, payload }, state) do
-    %{id: _id, msg: msg, roomid: roomid, node: node, origin_node: origin_node} = payload
-    PhoenixReactWeb.Endpoint.broadcast!("room:#{roomid}", "new_msg", %{"message" => msg, "node" => node} )
+    %{id: id, msg: msg, roomid: roomid, node: node, origin_node: _origin_node, method: method} = payload
+    PhoenixReactWeb.Endpoint.broadcast!("room:#{roomid}", "new_msg", %{"message" => msg, "node" => node, "method" => method, "id" => id} )
     {:noreply, state}
   end
 
