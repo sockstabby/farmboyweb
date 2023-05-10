@@ -6,11 +6,13 @@
 #
 # This file is based on these images:
 #
+#   - node:19-alpine - for building the React Frontend compenents
 #   - https://hub.docker.com/r/hexpm/elixir/tags - for the build image
 #   - https://hub.docker.com/_/debian?tab=tags&page=1&name=bullseye-20221004-slim - for the release image
 #   - https://pkgs.org/ - resource for finding needed packages
 #   - Ex: hexpm/elixir:1.14.2-erlang-25.2-debian-bullseye-20221004-slim
 #
+
 ARG ELIXIR_VERSION=1.14.2
 ARG OTP_VERSION=25.2
 ARG DEBIAN_VERSION=bullseye-20221004-slim
@@ -19,16 +21,19 @@ ARG DEBIAN_VERSION=bullseye-20221004-slim
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
+FROM node:19-alpine as webapp
+WORKDIR /nodeapp
+COPY frontend /nodeapp/
+RUN npm install
+RUN npm run build
+
 FROM ${BUILDER_IMAGE} as builder
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
-
 # install build dependencies
-RUN apt-get update -y && apt-get install -y build-essential git curl npm \
-    && apt-get clean && rm -f /var/lib/apt/lists/*_* \
-    && curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash \
-    && source ~/.profile && nvm install 19.8.1 && nvm use 19.8.1
+RUN apt-get update -y && apt-get install -y build-essential git \
+    && apt-get clean && rm -f /var/lib/apt/lists/*_* 
 
 # prepare build dir
 WORKDIR /app
@@ -57,17 +62,10 @@ COPY lib lib
 
 COPY assets assets
 
-#COPY frontend frontend
-
 # compile assets
 RUN mix assets.deploy
 
-RUN mix webapp
-
-#RUN cd frontend && npm install --quiet \
-#    && npm run build \
-#    && cp -R dist ../priv/static/webapp
-
+COPY --from=webapp /nodeapp/dist ./priv/static/webapp
 
 # Compile the release
 RUN mix compile
