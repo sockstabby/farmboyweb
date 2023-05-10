@@ -3,7 +3,7 @@ import Config
 # Configure your database
 config :phoenix_react, PhoenixReact.Repo,
   username: "postgres",
-  password: "postgres",
+  password: "postgresSuperUserPsw",
   hostname: "localhost",
   database: "phoenix_react_dev",
   stacktrace: true,

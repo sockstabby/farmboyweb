@@ -19,3 +19,14 @@ config :logger, level: :info
 
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.
+
+
+# Configure your database
+config :phoenix_react, PhoenixReact.Repo,
+  username: "postgres",
+  password: "postgresSuperUserPsw",
+  hostname: "localhost",
+  database: "phoenix_react_dev",
+  stacktrace: true,
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10
