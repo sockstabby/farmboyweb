@@ -17,7 +17,7 @@ config :phoenix_react, PhoenixReactWeb.Endpoint,
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
   #http: [ip: {127, 0, 0, 1}, port: 4000],
   http: [ip: {0, 0, 0, 0}, port: 4000],
-  url: [host: "hw2.edgerock1.com"],
+  #url: [host: "hw2.edgerock1.com"],
   check_origin: :conn,
   #code_reloader: true,
   #debug_errors: true,
