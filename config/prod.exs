@@ -19,8 +19,9 @@ config :phoenix_react, PhoenixReactWeb.Endpoint,
   http: [ip: {0, 0, 0, 0}, port: 4000],
   #url: [host: "hw2.edgerock1.com"],
 
-  url: [host: "hw2.edgerock1.com", path: "/app", scheme: :http, port: "4000"]
+  #url: [host: "hw2.edgerock1.com", path: "/app", scheme: :http, port: "4000"]
 
+  check_origin: :false,
 
 
   #check_origin: :conn,
