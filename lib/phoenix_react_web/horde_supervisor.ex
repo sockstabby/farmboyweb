@@ -16,30 +16,61 @@ defmodule TaskStatusListener.Supervisor do
             }, [{any, any, any, any, any, any} | map]}}
 
   def init(:ok) do
-    env = String.to_atom(System.get_env("MIX_ENV") || "dev")
 
-    children = [
-      {Cluster.Supervisor, [topologies(), [name: Cluster.Supervisor]]},
+    children_dev = [
+      {Cluster.Supervisor, [topologies_gossip(), [name: Cluster.Supervisor]]},
       HordeTaskRouter.HordeRegistry,
       HordeTaskRouter.NodeObserver,
       {Phoenix.PubSub, name: :tasks}
     ]
 
-    #children =
-    #    if env == :dev, do: children_dev, else: children_prod
+    children_prod = [
+      Supervisor.child_spec({Cluster.Supervisor, [topologies_worker(), [name: BackgroundJob.ClusterSupervisorPhoenix]]} , id: :phoenix_cluster_sup),
+      Supervisor.child_spec({Cluster.Supervisor, [topologies_router(), [name: BackgroundJob.ClusterSupervisorRouter]]} , id: :router_cluster_sup),
+      HordeTaskRouter.HordeRegistry,
+      HordeTaskRouter.NodeObserver,
+      {Phoenix.PubSub, name: :tasks}
+    ]
 
-    opts = [strategy: :one_for_one, name: HelloWorld.Supervisor]
+    env = String.to_atom(System.get_env("MIX_ENV") || "dev")
+    Logger.info("env = #{env}")
 
-    Logger.debug("What the heck is going on?")
+    children = if env == :dev, do: children_dev, else: children_prod
 
     Supervisor.init(children, strategy: :one_for_one)
   end
 
 
-  defp topologies do
+  defp topologies_gossip do
     [
       background_job: [
         strategy: Cluster.Strategy.Gossip
+      ]
+    ]
+  end
+
+  defp topologies_worker do
+    [
+      k8s_example: [
+        strategy: Elixir.Cluster.Strategy.Kubernetes.DNS,
+        config: [
+          service: "cluster-svc",
+          application_name: "worker",
+          polling_interval: 3_000
+        ]
+      ]
+    ]
+  end
+
+  defp topologies_router do
+    [
+      k8s_example: [
+        strategy: Elixir.Cluster.Strategy.Kubernetes.DNS,
+        config: [
+          service: "cluster-svc",
+          application_name: "task_router",
+          polling_interval: 3_000
+        ]
       ]
     ]
   end
