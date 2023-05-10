@@ -18,7 +18,7 @@ config :phoenix_react, PhoenixReactWeb.Endpoint,
   #http: [ip: {127, 0, 0, 1}, port: 4000],
   http: [ip: {0, 0, 0, 0}, port: 4000],
   url: [host: "hw2.edgerock1.com"],
-  #check_origin: :conn,
+  check_origin: :conn,
   #code_reloader: true,
   #debug_errors: true,
   secret_key_base: "UAdrHQA4rxA9EWT6zwBuyunGWP1mygH621u5tkwOF3Vz6PAvfh8kjRLVe+AYbWnG"
