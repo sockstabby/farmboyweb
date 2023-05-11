@@ -174,5 +174,6 @@ a:active {
 }
 
 .navbar-nav > .active {
+  font-size: large;
   border-bottom: 2px solid black;
 }

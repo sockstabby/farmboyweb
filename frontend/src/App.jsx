@@ -33,6 +33,8 @@ function App() {
   const [taskData, setTaskData] = useState([]);
   const [taskMetaData, setTaskMetaData] = useState([]);
 
+  const [taskStateTick, setTaskStateTick] = useState(0);
+
   const [availableTasks, setAvailableTasks] = useState([]);
 
   const rowsRef = useRef(logData);
@@ -97,8 +99,9 @@ function App() {
   useEffect(() => {
     setTimeout(() => {
       fetchTaskState();
-    }, 1000 * 2);
-  });
+      setTaskStateTick(taskStateTick + 1);
+    }, 1000 * 5);
+  }, [taskStateTick]);
 
   useEffect(() => {
     function joinRoom() {
@@ -141,6 +144,13 @@ function TasksPage() {
 }
 
 function MainApp({ logData, taskData, taskMetaData }) {
+  const [location, setLocation] = useState(window.location.pathname);
+
+  function setLocationProp(loc) {
+    setLocation(window.location.pathname);
+  }
+
+  console.log("window location", window.location.pathname);
   return (
     <BrowserRouter basename="app">
       <div>
@@ -158,16 +168,40 @@ function MainApp({ logData, taskData, taskMetaData }) {
 
             <Navbar.Collapse id="responsive-navbar-nav">
               <Nav className="me-auto">
-                <Link className="nav-link" to="/">
+                <Link
+                  onClick={setLocationProp}
+                  className={`nav-link${
+                    window.location.pathname === "/app" ? " active" : ""
+                  }`}
+                  to="/"
+                >
                   Tasks
                 </Link>
-                <Link className="nav-link active" to="/system">
+                <Link
+                  onClick={setLocationProp}
+                  className={`nav-link${
+                    window.location.pathname === "/app/system" ? " active" : ""
+                  }`}
+                  to="/system"
+                >
                   System
                 </Link>
-                <Link className="nav-link" to="/logs">
+                <Link
+                  onClick={setLocationProp}
+                  className={`nav-link${
+                    window.location.pathname === "/app/logs" ? " active" : ""
+                  }`}
+                  to="/logs"
+                >
                   Logs
                 </Link>
-                <Link className="nav-link" to="/tasks">
+                <Link
+                  onClick={setLocationProp}
+                  className={`nav-link ${
+                    window.location.pathname === "/alerts" ? " active" : ""
+                  }`}
+                  to="/tasks"
+                >
                   Alerts
                 </Link>
               </Nav>
@@ -196,7 +230,7 @@ function MainApp({ logData, taskData, taskMetaData }) {
 
         <div className="footer">
           <div className="footer-text-container">
-            <p>Eric Peterson Copyright @2023</p>
+            <p>To do or not to do</p>
           </div>
         </div>
       </div>
