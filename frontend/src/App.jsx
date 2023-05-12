@@ -37,8 +37,8 @@ function App() {
         const tokens = i.time_started.split("+");
         const ts = tokens[0]; // + "Z";
 
-        var timeStarted = moment(ts).utc();
-        var now = moment().utc();
+        var timeStarted = moment(ts);
+        var now = moment();
 
         const duration = now.diff(timeStarted, "seconds");
         return { ...i, ...{ timeElapsed: `${duration}` } };
