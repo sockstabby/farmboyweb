@@ -37,8 +37,11 @@ function App() {
         const tokens = i.time_started.split("+");
         const ts = tokens[0]; // + "Z";
 
+        const dt = new Date();
+        const tz = dt.getTimezoneOffset();
+
         var timeStarted = moment(ts);
-        var now = moment();
+        var now = moment().add(tz, "minutes");
 
         const duration = now.diff(timeStarted, "seconds");
         return { ...i, ...{ timeElapsed: `${duration}` } };
