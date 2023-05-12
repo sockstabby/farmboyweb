@@ -1,11 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  BrowserRouter,
-  Link,
-  Routes,
-  Route,
-  useNavigate,
-} from "react-router-dom";
+import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
 import { Tasks } from "./Tasks.jsx";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Container from "react-bootstrap/Container";
@@ -17,11 +11,7 @@ import { SystemView } from "./SystemView.jsx";
 import { LogView } from "./LogView.jsx";
 import moment from "moment";
 import axios from "axios";
-
-import { createContext } from "react";
 import { Socket } from "./phoenix.js";
-
-export const Context = createContext([]);
 
 let socket = new Socket("/socket", { params: { token: "MYTOKEN" } });
 socket.connect();
@@ -48,7 +38,7 @@ function App() {
         const ts = tokens[0]; // + "Z";
 
         var timeStarted = moment(ts);
-        var now = moment();
+        var now = moment().utc();
 
         const duration = now.diff(timeStarted, "seconds");
         return { ...i, ...{ timeElapsed: `${duration}` } };
@@ -230,7 +220,7 @@ function MainApp({ logData, taskData, taskMetaData }) {
 
         <div className="footer">
           <div className="footer-text-container">
-            <p>To do or not to do</p>
+            <p>Footer placeholder</p>
           </div>
         </div>
       </div>
