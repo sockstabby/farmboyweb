@@ -9,7 +9,6 @@ const tabLinks = {
   0: "/",
   1: "/system",
   2: "/logs",
-  3: "/alerts",
 };
 
 export default function BasicTabs() {
@@ -33,7 +32,6 @@ export default function BasicTabs() {
         <Tab label="Tasks" />
         <Tab label="System" />
         <Tab label="Logs" />
-        <Tab label="Alerts" />
       </Tabs>
     </Box>
   );

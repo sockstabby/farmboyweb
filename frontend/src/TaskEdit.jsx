@@ -145,11 +145,11 @@ export function TaskEdit({ mode, taskMetaData, onClose, items }) {
       editTasks(tasks);
     }
 
-    onClose();
+    onClose(true);
   };
 
   const onCancel = () => {
-    onClose();
+    onClose(false);
   };
 
   const setNameVal = (event) => {

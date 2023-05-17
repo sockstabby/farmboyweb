@@ -170,8 +170,6 @@ function MainApp({ logData, taskData, taskMetaData }) {
             />
             <Route path="system" element={<SystemView taskData={taskData} />} />
             <Route path="logs" element={<LogView logData={logData} />} />
-
-            <Route path="alerts" element={<Tabs />} />
           </Routes>
         </div>
 

@@ -1,5 +1,10 @@
 :root {
   background-color: cornsilk;
+  height: 100vh;
+}
+
+.app-body {
+  height: 100vh;
 }
 
 body {
@@ -30,7 +35,7 @@ body {
   align-items: center;
 }
 .main {
-  height: calc(100vh - 110px);
+  height: calc(100vh - 100px);
   padding-top: 10px;
   padding-left: 100px;
   padding-right: 100px;
@@ -62,7 +67,8 @@ body {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 3px;
+  padding-bottom: 10px;
+  padding-top: 20px;
 }
 
 .grid-controls button {
@@ -91,11 +97,11 @@ a:active {
 }
 
 .grid-footer-controls {
-  padding-top: 5px;
+  padding-top: 10px;
 }
 
 .ag-theme-alpine {
-  height: 85%;
+  height: 75%;
 
   --ag-header-height: 30px;
   --ag-header-column-separator-display: block;
@@ -115,14 +121,15 @@ a:active {
   flex-direction: row;
   height: 100%;
   justify-content: center;
+  padding-top: 10px;
 }
 
 .edit-inputs {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 20px;
   border-radius: 5px;
+  padding-top: 10px;
 }
 
 .vertical-input {
@@ -139,6 +146,7 @@ a:active {
   flex-direction: row;
   justify-content: flex-end;
   gap: 15px;
+  padding-top: 10px;
 }
 
 .checkbox-vertical-input {
@@ -189,4 +197,9 @@ a:active {
 
 .main-title {
   min-width: 180px;
+}
+
+.grid-buttons {
+  display: flex;
+  gap: 15px;
 }

@@ -3,9 +3,13 @@ import { AgGridReact } from "ag-grid-react";
 import { FaSearch } from "react-icons/fa";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
+import TextField from "@mui/material/TextField";
+import { InputAdornment } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 
 export function SystemView({ taskData }) {
   const grid = useRef();
+  const [filterText, setFilterText] = useState("");
 
   const [columnDefs] = useState([
     { field: "worker", headerName: "Worker" },
@@ -20,20 +24,28 @@ export function SystemView({ taskData }) {
 
   const filterGrid = (e) => {
     const text = e.target.value;
+    setFilterText(text);
     grid.current.api.setQuickFilter(text);
   };
 
   return (
     <>
       <div className="grid-controls">
-        <div>
-          <FaSearch />
-          <input
-            type="search"
-            onChange={filterGrid}
-            placeholder="Filter Tasks..."
-          ></input>
-        </div>
+        <TextField
+          id="search"
+          type="search"
+          label="Filter Tasks"
+          value={filterText}
+          onChange={filterGrid}
+          sx={{ width: 600 }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
       </div>
 
       <div className="ag-theme-alpine">
