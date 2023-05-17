@@ -1,13 +1,16 @@
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+
+import Typography from "@mui/material/Typography";
+
 import { useEffect, useRef, useState } from "react";
 import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
 import { Tasks } from "./Tasks.jsx";
-import "bootstrap/dist/css/bootstrap.min.css";
-import Container from "react-bootstrap/Container";
-import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
-import reactLogo from "./assets/react.svg";
 import { TaskEdit } from "./TaskEdit.jsx";
 import { SystemView } from "./SystemView.jsx";
+import Tabs from "./MyTabpanel.jsx";
 import { LogView } from "./LogView.jsx";
 import moment from "moment";
 import axios from "axios";
@@ -22,10 +25,7 @@ function App() {
   const [logData, setLogData] = useState([]);
   const [taskData, setTaskData] = useState([]);
   const [taskMetaData, setTaskMetaData] = useState([]);
-
   const [taskStateTick, setTaskStateTick] = useState(0);
-
-  const [availableTasks, setAvailableTasks] = useState([]);
 
   const rowsRef = useRef(logData);
 
@@ -146,68 +146,20 @@ function MainApp({ logData, taskData, taskMetaData }) {
   console.log("window location", window.location.pathname);
   return (
     <BrowserRouter basename="app">
-      <div>
-        <Navbar collapseOnSelect expand="lg" bg="light" variant="light">
-          <Container>
-            <img
-              src={reactLogo}
-              width="30"
-              height="30"
-              className="d-inline-block align-top"
-              alt="React Bootstrap logo"
-            />
-            <Navbar.Brand href="#home">Farm Boy</Navbar.Brand>
-            <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-
-            <Navbar.Collapse id="responsive-navbar-nav">
-              <Nav className="me-auto">
-                <Link
-                  onClick={setLocationProp}
-                  className={`nav-link${
-                    window.location.pathname === "/app" ? " active" : ""
-                  }`}
-                  to="/"
-                >
-                  Tasks
-                </Link>
-                <Link
-                  onClick={setLocationProp}
-                  className={`nav-link${
-                    window.location.pathname === "/app/system" ? " active" : ""
-                  }`}
-                  to="/system"
-                >
-                  System
-                </Link>
-                <Link
-                  onClick={setLocationProp}
-                  className={`nav-link${
-                    window.location.pathname === "/app/logs" ? " active" : ""
-                  }`}
-                  to="/logs"
-                >
-                  Logs
-                </Link>
-                <Link
-                  onClick={setLocationProp}
-                  className={`nav-link ${
-                    window.location.pathname === "/alerts" ? " active" : ""
-                  }`}
-                  to="/tasks"
-                >
-                  Alerts
-                </Link>
-              </Nav>
-              <Nav>
-                <Nav.Link href="#deets">More deets</Nav.Link>
-              </Nav>
-            </Navbar.Collapse>
-          </Container>
-        </Navbar>
+      <div className="app-body">
+        <div className="main-nav">
+          <div className="main-title">
+            <Typography variant="h5">FarmBoy</Typography>
+          </div>
+          <Tabs />
+        </div>
         <div className="main">
           <Routes>
-            <Route path="/" element={<TasksPage />} />
-            <Route path="tasks" element={<TasksPage />} />
+            <Route path="/" element={<Tasks taskMetaData={taskMetaData} />} />
+            <Route
+              path="tasks"
+              element={<Tasks taskMetaData={taskMetaData} />}
+            />
             <Route
               path="edit-task"
               element={<TaskEdit mode="edit" taskMetaData={taskMetaData} />}
@@ -218,6 +170,8 @@ function MainApp({ logData, taskData, taskMetaData }) {
             />
             <Route path="system" element={<SystemView taskData={taskData} />} />
             <Route path="logs" element={<LogView logData={logData} />} />
+
+            <Route path="alerts" element={<Tabs />} />
           </Routes>
         </div>
 

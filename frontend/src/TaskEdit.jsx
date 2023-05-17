@@ -1,9 +1,13 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import Form from "react-bootstrap/Form";
+import { useNavigate } from "react-router-dom";
+import Select from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import TextField from "@mui/material/TextField";
+import Checkbox from "@mui/material/Checkbox";
 
-import "bootstrap/dist/css/bootstrap.min.css";
-import Button from "react-bootstrap/Button";
+import Button from "@mui/material/Button";
 
 const allEqual = (arr) => arr.every((val) => val === arr[0]);
 
@@ -14,26 +18,26 @@ const getConsensus = (items, key, noConsensusValue = "") => {
   return ret;
 };
 
-export function TaskEdit({ mode, taskMetaData }) {
-  const { state } = useLocation();
-  const [tasks, setTasks] = useState(state);
+export function TaskEdit({ mode, taskMetaData, onClose, items }) {
+  const [tasks, setTasks] = useState(items);
+
   const [name, setName] = useState(
-    mode === "edit" ? getConsensus(state, "name") : ""
+    mode === "edit" ? getConsensus(items, "name") : ""
   );
   const [enabled, setEnabled] = useState(
-    mode === "edit" ? getConsensus(state, "enabled", false) : true
+    mode === "edit" ? getConsensus(items, "enabled", false) : true
   );
   const [config, setConfig] = useState(
-    mode === "edit" ? getConsensus(state, "config", "{}") : "{}"
+    mode === "edit" ? getConsensus(items, "config", "{}") : "{}"
   );
   const [schedule, setSchedule] = useState(
-    mode === "edit" ? getConsensus(state, "schedule") : "* * * * *"
+    mode === "edit" ? getConsensus(items, "schedule") : "* * * * *"
   );
   const [slackEnabled, setSlackEnabled] = useState(
-    mode === "edit" ? getConsensus(state, "slack", false) : true
+    mode === "edit" ? getConsensus(items, "slack", false) : true
   );
   const [taskid, setTaskid] = useState(
-    mode === "edit" ? getConsensus(state, "taskid", 1) : 1
+    mode === "edit" ? getConsensus(items, "taskid", 1) : 1
   );
 
   const [multiEditCheckState, setMultiEditCheckState] = useState({});
@@ -141,11 +145,11 @@ export function TaskEdit({ mode, taskMetaData }) {
       editTasks(tasks);
     }
 
-    navigate(-1);
+    onClose();
   };
 
   const onCancel = () => {
-    navigate(-1);
+    onClose();
   };
 
   const setNameVal = (event) => {
@@ -153,11 +157,11 @@ export function TaskEdit({ mode, taskMetaData }) {
   };
 
   const setEnabledVal = (event) => {
-    setEnabled(event.target.checked);
+    setEnabled(event.target.value);
   };
 
   const setSlackEnabledVal = (event) => {
-    setSlackEnabled(event.target.checked);
+    setSlackEnabled(event.target.value);
   };
 
   const setConfigurationVal = (event) => {
@@ -172,19 +176,8 @@ export function TaskEdit({ mode, taskMetaData }) {
     setTaskid(event.target.value);
   };
 
-  let editTitle = "Editing Existing Task";
-
-  if (mode === "edit") {
-    editTitle = tasks.length > 1 ? "Edit Multiple Tasks" : "Edit Task";
-  }
-
   function wrapSingleEdit(className, label, control) {
-    return (
-      <div className={className}>
-        {label}
-        {control}
-      </div>
-    );
+    return <div className={className}>{control}</div>;
   }
 
   const setMultiEditCheckStateVal = (inputName, val) => {
@@ -206,14 +199,11 @@ export function TaskEdit({ mode, taskMetaData }) {
     return (
       <div className={className}>
         <div className={"parent"}>
-          <div className="div1"></div>
-          <div className="div2">{label}</div>
           <div className="div3">{control}</div>
           <div className="div4">
             {" "}
-            <Form.Check
-              type="checkbox"
-              id="Enabled"
+            <Checkbox
+              defaultChecked
               label=""
               checked={isMultiEditChecked(inputName)}
               onChange={(event) => {
@@ -227,75 +217,111 @@ export function TaskEdit({ mode, taskMetaData }) {
   }
 
   const nameInput = (
-    <input
-      type="text"
-      disabled={mode === "edit" && tasks.length > 1}
-      value={name}
+    <TextField
       onChange={setNameVal}
-    ></input>
+      id="standard-basic"
+      label="Name"
+      variant="outlined"
+      value={name}
+    />
   );
 
   const enabledInput = (
-    <Form.Check
-      type="checkbox"
-      id="Enabled"
-      label="Enabled"
-      checked={enabled}
-      onChange={setEnabledVal}
-    />
+    <FormControl fullWidth>
+      <InputLabel id="demo-simple-select-label">Enabled</InputLabel>
+      <Select
+        labelId="demo-simple-select-label"
+        id="demo-simple-select"
+        value={enabled}
+        label="Enabled"
+        onChange={setEnabledVal}
+      >
+        <MenuItem value={true}>True</MenuItem>;
+        <MenuItem value={false}>False</MenuItem>;
+      </Select>
+    </FormControl>
   );
 
   const currentTask = taskMetaData.find((task) => task.taskid === taskid);
 
   const taskOptions = taskMetaData.map((task) => {
     return (
-      <option key={task.taskid} value={task.taskid}>
-        {" "}
-        {task.task_display_name}{" "}
-      </option>
+      <MenuItem key={task.taskid} value={task.taskid}>
+        {task.task_display_name}
+      </MenuItem>
     );
   });
 
   const taskIdInput = (
-    <Form.Select
-      defaultValue={taskid}
-      aria-label="Default select example"
-      onChange={setTaskidVal}
-    >
-      {taskOptions}
-    </Form.Select>
+    <FormControl fullWidth>
+      <InputLabel id="demo-simple-select-label">Task</InputLabel>
+      <Select
+        labelId="demo-simple-select-label"
+        id="demo-simple-select"
+        value={taskid}
+        label="Task"
+        onChange={setTaskidVal}
+      >
+        {taskOptions}
+      </Select>
+    </FormControl>
   );
 
-  const taskConfigInput = (
+  const taskConfigInput2 = (
     <input type="text" value={config} onChange={setConfigurationVal}></input>
   );
 
-  const scheduleInput = (
+  const taskConfigInput = (
+    <TextField
+      onChange={setConfigurationVal}
+      id="standard-basic"
+      label="Configuration"
+      variant="outlined"
+      value={config}
+    />
+  );
+
+  const scheduleInput2 = (
     <input type="text" value={schedule} onChange={setScheduleVal}></input>
   );
 
-  const slackInput = (
-    <Form.Check
-      type="checkbox"
-      id="Send Slack"
-      label="Send Slack Message"
-      checked={slackEnabled}
-      onChange={setSlackEnabledVal}
+  const scheduleInput = (
+    <TextField
+      onChange={setScheduleVal}
+      id="standard-basic"
+      label="Schedule"
+      variant="outlined"
+      value={schedule}
     />
+  );
+
+  const slackInput = (
+    <FormControl fullWidth>
+      <InputLabel id="demo-simple-select-label">Send Slack Message</InputLabel>
+      <Select
+        labelId="demo-simple-select-label"
+        id="demo-simple-select"
+        value={slackEnabled}
+        label="Send Slack Message"
+        onChange={setSlackEnabledVal}
+      >
+        <MenuItem value={true}>True</MenuItem>;
+        <MenuItem value={false}>False</MenuItem>;
+      </Select>
+    </FormControl>
   );
 
   return (
     <div>
       <div className="edit-page">
         <div className="edit-inputs">
-          {mode === "edit" ? <h5>{editTitle}</h5> : <h5>Add New Task</h5>}
-          {mode === "edit" && tasks.length > 1 && (
-            <p>Only items explicitly checked will be applied to all tasks. </p>
-          )}
+          {(mode === "edit" && tasks.length == 1) ||
+            (mode === "add" &&
+              wrapSingleEdit("vertical-input", "Task Name", nameInput))}
 
-          {mode === "edit" && tasks.length > 1
-            ? wrapMultiEdit("vertical-input", "name", "Task Name", nameInput)
-            : wrapSingleEdit("vertical-input", "Task Name", nameInput)}
+          {mode === "edit" &&
+            tasks.length == 1 &&
+            wrapSingleEdit("vertical-input", "Task Name", nameInput)}
 
           {mode === "edit" && tasks.length > 1
             ? wrapMultiEdit(
@@ -309,11 +335,9 @@ export function TaskEdit({ mode, taskMetaData }) {
                 "Enabled",
                 enabledInput
               )}
-
           {mode === "edit" && tasks.length > 1
             ? wrapMultiEdit("vertical-input", "taskid", "Task", taskIdInput)
             : wrapSingleEdit("vertical-input", "Task", taskIdInput)}
-
           {mode === "edit" && tasks.length > 1
             ? wrapMultiEdit(
                 "vertical-input",
@@ -326,7 +350,6 @@ export function TaskEdit({ mode, taskMetaData }) {
                 "Task Configuration",
                 taskConfigInput
               )}
-
           {mode === "edit" && tasks.length > 1
             ? wrapMultiEdit(
                 "vertical-input",
@@ -335,7 +358,6 @@ export function TaskEdit({ mode, taskMetaData }) {
                 scheduleInput
               )
             : wrapSingleEdit("vertical-input", "Schedule", scheduleInput)}
-
           {mode === "edit" && tasks.length > 1
             ? wrapMultiEdit(
                 "checkbox-vertical-input",
@@ -348,12 +370,16 @@ export function TaskEdit({ mode, taskMetaData }) {
                 "Send Slack Message:",
                 slackInput
               )}
-
           <div className="form-button-container">
-            <Button variant="light" onClick={onCancel}>
+            <Button variant="outlined" onClick={onCancel}>
               Cancel
             </Button>
-            <Button variant="light" disabled={!isValid} onClick={onSave}>
+            <Button
+              color="primary"
+              variant="outlined"
+              disabled={!isValid}
+              onClick={onSave}
+            >
               Save
             </Button>
           </div>

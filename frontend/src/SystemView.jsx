@@ -3,7 +3,6 @@ import { AgGridReact } from "ag-grid-react";
 import { FaSearch } from "react-icons/fa";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import "bootstrap/dist/css/bootstrap.min.css";
 
 export function SystemView({ taskData }) {
   const grid = useRef();

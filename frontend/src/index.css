@@ -2,6 +2,10 @@
   background-color: cornsilk;
 }
 
+body {
+  margin: 0px;
+}
+
 .container {
   display: block;
 }
@@ -116,15 +120,14 @@ a:active {
 .edit-inputs {
   display: flex;
   flex-direction: column;
-  width: 400px;
-  border: 1px solid lightgray;
+  width: 100%;
   padding: 20px;
   border-radius: 5px;
 }
 
 .vertical-input {
-  padding: 5px;
   width: 100%;
+  padding: 10px;
 }
 
 .vertical-input input {
@@ -139,14 +142,12 @@ a:active {
 }
 
 .checkbox-vertical-input {
-  padding-top: 5px;
-  padding-left: 5px;
+  padding: 10px;
 }
 
 .parent {
   display: grid;
   grid-template-columns: 40px;
-  grid-template-rows: repeat(2, 1fr);
   grid-column-gap: 0px;
   grid-row-gap: 0px;
 }
@@ -176,4 +177,16 @@ a:active {
 .navbar-nav > .active {
   font-size: large;
   border-bottom: 2px solid black;
+}
+
+.main-nav {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 100px;
+  background-color: white;
+}
+
+.main-title {
+  min-width: 180px;
 }

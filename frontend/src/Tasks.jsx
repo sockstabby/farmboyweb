@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import axios from "axios";
 import { AgGridReact } from "ag-grid-react";
-import Button from "react-bootstrap/Button";
+import Button from "@mui/material/Button";
+
 import { useNavigate } from "react-router-dom";
 
 import "ag-grid-community/styles/ag-grid.css";
@@ -9,13 +10,24 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 
 import { FaPlus } from "react-icons/fa";
 
-import { FaEdit } from "react-icons/fa";
-
 import { FaSearch } from "react-icons/fa";
 
-export function Tasks() {
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+
+import { TaskEdit } from "./TaskEdit.jsx";
+
+import TextField from "@mui/material/TextField";
+
+export function Tasks({ taskMetaData }) {
   const [rowData, setRowData] = useState([]);
 
+  const [mode, setMode] = useState(null);
+
+  const [open, setOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(-1);
 
   const grid = useRef();
@@ -39,6 +51,8 @@ export function Tasks() {
   async function removeTasks(tasks) {
     const responses = [];
 
+    console.log("tasks= ", tasks);
+
     tasks.forEach(async (task) => {
       const response = await fetch(`/api/tasks/${task.id}`, {
         method: "DELETE",
@@ -54,16 +68,21 @@ export function Tasks() {
   }
 
   const addTask = () => {
-    navigate("/add-task");
+    setMode("add");
+    setOpen(true);
   };
 
   const editTask = () => {
-    navigate("/edit-task", { state: getSelectedRowData() });
+    setMode("edit");
+    setOpen(true);
   };
 
   const getSelectedRowData = () => {
-    const selectedData = grid.current.api.getSelectedRows();
-    return selectedData;
+    if (grid && grid.current) {
+      const selectedData = grid.current.api.getSelectedRows();
+      return selectedData;
+    }
+    return [];
   };
 
   const rowSelected = (e) => {
@@ -85,6 +104,10 @@ export function Tasks() {
   const options = { sortable: true, filter: true };
   const setDefaultColDef = useMemo(() => options, []);
 
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   return (
     <>
       <div className="grid-controls">
@@ -98,17 +121,16 @@ export function Tasks() {
         </div>
 
         <div>
-          <Button variant="light" onClick={addTask}>
-            <FaPlus />
-          </Button>
-
+          <Button variant="outlined" onClick={addTask}>
+            Add Task
+          </Button>{" "}
           <Button
-            variant="light"
+            variant="outlined"
             disabled={selectedRow === -1}
             onClick={editTask}
           >
-            <FaEdit />
-          </Button>
+            Edit Items
+          </Button>{" "}
         </div>
       </div>
       <div className="ag-theme-alpine">
@@ -124,13 +146,33 @@ export function Tasks() {
       </div>
       <div className="grid-footer-controls">
         <Button
-          variant="outline-danger"
+          variant="outlined"
           disabled={selectedRow === -1}
           onClick={removeTask}
         >
           Delete Selected Items
         </Button>{" "}
       </div>
+
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>
+          {" "}
+          {mode === "add" ? "Add New Task" : "Edit Task(s)"}{" "}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            To subscribe to this website, please enter your email address here.
+            We will send updates occasionally.
+          </DialogContentText>
+
+          <TaskEdit
+            mode={mode}
+            onClose={handleClose}
+            taskMetaData={taskMetaData}
+            items={getSelectedRowData()}
+          />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
