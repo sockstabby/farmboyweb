@@ -49,10 +49,9 @@ body {
   justify-content: center;
   grid-area: footer;
   font-size: xx-small;
-  height: 40px;
-  background-color: white;
-  background-color: cornsilk;
-  border-radius: 5px;
+  height: 41px;
+  background-color: black;
+  align-items: center;
 }
 
 .links {
@@ -88,8 +87,7 @@ a:active {
 }
 
 .footer-text-container {
-  width: 100px;
-  max-width: 100px;
+  color: white;
 }
 
 .footer-text-container p {
@@ -98,6 +96,8 @@ a:active {
 
 .grid-footer-controls {
   padding-top: 10px;
+  justify-content: flex-end;
+  display: flex;
 }
 
 .ag-theme-alpine {
@@ -133,7 +133,6 @@ a:active {
 }
 
 .vertical-input {
-  width: 100%;
   padding: 10px;
 }
 
@@ -197,9 +196,16 @@ a:active {
 
 .main-title {
   min-width: 180px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
 }
 
 .grid-buttons {
   display: flex;
   gap: 15px;
+}
+
+.css-lo5iiz-MuiFormControl-root-MuiTextField-root {
+  width: 500px !important;
 }

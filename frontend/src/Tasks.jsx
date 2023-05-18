@@ -4,8 +4,6 @@ import { AgGridReact } from "ag-grid-react";
 import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
 
-import { useNavigate } from "react-router-dom";
-
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
@@ -29,7 +27,6 @@ export function Tasks({ taskMetaData }) {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   const grid = useRef();
-  const navigate = useNavigate();
 
   const [columnDefs] = useState([
     { field: "name" },
@@ -42,26 +39,29 @@ export function Tasks({ taskMetaData }) {
 
   useEffect(() => {
     axios.get("/api/tasks").then((response) => {
+      console.log("response from axios =", response);
       setRowData(response.data.data);
     });
   }, []);
 
   async function removeTasks(tasks) {
-    const responses = [];
-
-    console.log("tasks= ", tasks);
+    let i = 1;
 
     tasks.forEach(async (task) => {
-      const response = await fetch(`/api/tasks/${task.id}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      });
-      axios.get("/api/tasks").then((response) => {
-        setRowData(response.data.data);
-      });
-
-      responses.push(response);
+      axios
+        .delete(`/api/tasks/${task.id}`)
+        .then((response) => {
+          if (i === tasks.length) {
+            console.log("getting tasks");
+            axios.get("/api/tasks").then((response) => {
+              setRowData(response.data.data);
+            });
+          }
+          i = i + 1;
+        })
+        .catch((error) => {
+          console.error("There was an error!", error);
+        });
     });
   }
 
@@ -105,16 +105,11 @@ export function Tasks({ taskMetaData }) {
   const options = { sortable: true, filter: true };
   const setDefaultColDef = useMemo(() => options, []);
 
-  console.log("render");
-
   async function handleClose(save = false) {
-    console.log("handling close save = ", save);
     setOpen(false);
 
     if (save) {
-      await new Promise((r) => setTimeout(r, 200));
       axios.get("/api/tasks").then((response) => {
-        console.log("response = ", response.data.data);
         setRowData(response.data.data);
       });
     }

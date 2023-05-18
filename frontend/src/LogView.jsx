@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useRef, useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -26,13 +26,6 @@ export function LogView({ logData }) {
     setFilterText(text);
     grid.current.api.setQuickFilter(text);
   };
-
-  useEffect(() => {
-    return () => {
-      // to do: save off the state of the columns
-      console.log("grid.current", grid.current);
-    };
-  }, []);
 
   return (
     <>

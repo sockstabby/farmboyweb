@@ -4,6 +4,7 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
 import Typography from "@mui/material/Typography";
+import AgricultureIcon from "@mui/icons-material/Agriculture";
 
 import { useEffect, useRef, useState } from "react";
 import { BrowserRouter, Link, Routes, Route } from "react-router-dom";
@@ -132,23 +133,13 @@ function App() {
   );
 }
 
-function TasksPage() {
-  return <Tasks />;
-}
-
 function MainApp({ logData, taskData, taskMetaData }) {
-  const [location, setLocation] = useState(window.location.pathname);
-
-  function setLocationProp(loc) {
-    setLocation(window.location.pathname);
-  }
-
-  console.log("window location", window.location.pathname);
   return (
     <BrowserRouter basename="app">
       <div className="app-body">
         <div className="main-nav">
           <div className="main-title">
+            <AgricultureIcon />
             <Typography variant="h5">FarmBoy</Typography>
           </div>
           <Tabs />
@@ -175,7 +166,9 @@ function MainApp({ logData, taskData, taskMetaData }) {
 
         <div className="footer">
           <div className="footer-text-container">
-            <p>Footer placeholder</p>
+            <Typography variant="caption" display="block">
+              {`${taskData.length} tasks running`}
+            </Typography>
           </div>
         </div>
       </div>

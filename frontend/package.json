@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/roboto": "^4.5.8",
+    "@mui/icons-material": "^5.11.16",
     "ag-grid-react": "^29.3.3",
     "axios": "^1.4.0",
     "moment": "^2.29.4",

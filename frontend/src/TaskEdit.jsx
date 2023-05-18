@@ -6,6 +6,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import TextField from "@mui/material/TextField";
 import Checkbox from "@mui/material/Checkbox";
+import axios from "axios";
 
 import Button from "@mui/material/Button";
 
@@ -50,11 +51,9 @@ export function TaskEdit({ mode, taskMetaData, onClose, items }) {
     isValid = config !== "" && schedule !== "" && name !== "";
   }
 
-  async function addTask(task) {
-    const response = await fetch("/api/tasks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+  function addTask(task) {
+    axios
+      .post("/api/tasks", {
         task: {
           name,
           taskid,
@@ -63,26 +62,40 @@ export function TaskEdit({ mode, taskMetaData, onClose, items }) {
           config,
           slack: slackEnabled,
         },
-      }),
-    });
+      })
+      .then(function (response) {
+        console.log("add task resp=", response);
+        onClose(true);
+        return response;
+      })
+      .catch(function (error) {
+        console.log(error);
+        console.log("add task error", error);
+        onClose(true);
+        return error;
+      });
   }
 
   async function editTasks(tasks) {
-    const responses = [];
-
     const multiEdit = tasks.length > 1;
 
+    let i = 1;
     tasks.forEach(async (task) => {
-      const obj = {
-        task: {
-          name: tasks.length > 1 ? task.name : name,
-          taskid: task.taskid,
-          schedule: schedule,
-          enabled: enabled,
-          config: config,
-          slack: slackEnabled,
-        },
-      };
+      /*
+      axios
+        .put(`/api/tasks/${task.id}`, )
+        .then(function (response) {
+          console.log("add task resp=", response);
+          onClose(true);
+          return response;
+        })
+        .catch(function (error) {
+          console.log(error);
+          console.log("add task error", error);
+          onClose(true);
+          return error;
+        });
+      */
 
       const response = await fetch(`/api/tasks/${task.id}`, {
         method: "PUT",
@@ -132,7 +145,11 @@ export function TaskEdit({ mode, taskMetaData, onClose, items }) {
         }),
       });
 
-      responses.push(response);
+      if (i === tasks.length) {
+        onClose(true);
+      }
+
+      i = i + 1;
     });
   }
 
@@ -144,8 +161,6 @@ export function TaskEdit({ mode, taskMetaData, onClose, items }) {
     if (mode === "edit") {
       editTasks(tasks);
     }
-
-    onClose(true);
   };
 
   const onCancel = () => {
@@ -203,7 +218,6 @@ export function TaskEdit({ mode, taskMetaData, onClose, items }) {
           <div className="div4">
             {" "}
             <Checkbox
-              defaultChecked
               label=""
               checked={isMultiEditChecked(inputName)}
               onChange={(event) => {
