@@ -19,8 +19,8 @@ defmodule TaskStatusListener.Supervisor do
     # in dev mode we'll use UDP gossip to discover items in the cluster
     children_dev = [
       {Cluster.Supervisor, [topologies_gossip(), [name: Cluster.Supervisor]]},
-      HordeTaskRouter.HordeRegistry,
-      HordeTaskRouter.NodeObserver,
+      Farmboy.HordeRegistry,
+      Farmboy.NodeObserver,
       {Phoenix.PubSub, name: :tasks}
     ]
 
@@ -37,8 +37,8 @@ defmodule TaskStatusListener.Supervisor do
          [topologies_router(), [name: BackgroundJob.ClusterSupervisorRouter]]},
         id: :router_cluster_sup
       ),
-      HordeTaskRouter.HordeRegistry,
-      HordeTaskRouter.NodeObserver,
+      Farmboy.HordeRegistry,
+      Farmboy.NodeObserver,
       {Phoenix.PubSub, name: :tasks}
     ]
 

@@ -4,7 +4,7 @@ The very first time you run you will need to create db connection and configure 
 
 Note: This depends on the router repo to be started as it calls into it to get a list of running tasks. See the router readme for more info.
 
-This typically runs in a cluster with a task router and this directly depends on it as it calls a genserver to get a list of running tasks.
+This typically runs in a cluster with a task router and this directly depends on it as it calls a genserver to get a list of running tasks. If the farmboy, aka task router, is not running you will see an error in the console.
 
 In debug mode items in the cluster are discovered using a UDP gossip protocol. In production mode the cluster items are discovered using a headless service in Kubernetes.
 
@@ -12,13 +12,38 @@ In debug mode items in the cluster are discovered using a UDP gossip protocol. I
 
 This repo contains a react project that can be build using a custom mix task mix webapp. In a future version this frontend javascript will be broken out into its own repo and we will integrate the build script to pull from it instead of storing the frontend javascript code in here in the Phoenix repo. All React javascript code is contained here in the frontend folder.
 
+If you want to iterate on the frontend you can start the phoenix server ( see below )
+and then run this command in the frontend folder
+
+```
+npm run dev
+```
+
+vite will then proxy all requests and redirect to the Phoenix webserver.
+
+# Running the app from Phoenix
+
+Go to http://localhost:4000/app/
+
 # Building
 
 You have several option to this code
 
 1. Run a debug build
 
+   ```
+   #first run the worker from the farmboytask separate repo run
+
+   iex --name worker@127.0.0.1 --cookie asdf -S  mix
+
+   #from the farmboy separate repo run
+   iex --name router@127.0.0.1 --cookie asdf -S mix
+
+
+   # finally run the phoenix web app
    iex --name phoenix@127.0.0.1 --cookie asdf -S mix phx.server
+
+   ```
 
    Note that the default mode will be debug as long as MIX_ENV is not set to prod.
 

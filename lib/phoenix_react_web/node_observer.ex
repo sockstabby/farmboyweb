@@ -1,4 +1,4 @@
-defmodule HordeTaskRouter.NodeObserver do
+defmodule Farmboy.NodeObserver do
   use GenServer
   require Logger
 

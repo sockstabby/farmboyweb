@@ -52,12 +52,16 @@ defmodule PhoenixReact.TaskAdmin do
 
   """
   def create_task(attrs \\ %{}) do
-    ret = %Task{}
-    |> Task.changeset(attrs)
-    |> Repo.insert()
+    ret =
+      %Task{}
+      |> Task.changeset(attrs)
+      |> Repo.insert()
 
-    GenServer.cast({:via, Horde.Registry, {HordeTaskRouter.HordeRegistry, "taskrouter"}},
-      {:task_item_added, ret})
+    GenServer.cast(
+      {:via, Horde.Registry, {Farmboy.HordeRegistry, "taskrouter"}},
+      {:task_item_added, ret}
+    )
+
     ret
   end
 
@@ -73,14 +77,15 @@ defmodule PhoenixReact.TaskAdmin do
 
     if changed_schedule != saved_schedule do
       Logger.debug("schedule changed. notifying the taskrouter")
-      GenServer.cast({:via, Horde.Registry, {HordeTaskRouter.HordeRegistry, "taskrouter"}},
-      {:task_schedule_changed, saved_task})
 
+      GenServer.cast(
+        {:via, Horde.Registry, {Farmboy.HordeRegistry, "taskrouter"}},
+        {:task_schedule_changed, saved_task}
+      )
     else
       Logger.debug("schedule did not change. dont bother the taskrouter")
     end
   end
-
 
   @doc """
   Updates a task.
@@ -118,8 +123,11 @@ defmodule PhoenixReact.TaskAdmin do
 
   """
   def delete_task(%Task{} = task) do
-    GenServer.cast({:via, Horde.Registry, {HordeTaskRouter.HordeRegistry, "taskrouter"}},
-      {:task_item_removed, task})
+    GenServer.cast(
+      {:via, Horde.Registry, {Farmboy.HordeRegistry, "taskrouter"}},
+      {:task_item_removed, task}
+    )
+
     Repo.delete(task)
   end
 
