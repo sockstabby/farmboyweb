@@ -1,85 +1,95 @@
-# DB API Endpoint Generation
+# Getting started
 
-    #generate db stuff
-    mix phx.gen.context TaskAdmin Task tasks taskid:integer name:string  schedule:string enabled:boolean config:string slack:boolean
+The very first time you run you will need to create db connection and configure config/dev.exs so that the connection parameters are valid. Once valid you will need to run mix ecto.migrate in the root of this project to create the table that will be used to store task configuration.
 
-    #generate crud
-    mix phx.gen.json TaskAdmin Task tasks taskid:integer name:string  schedule:string enabled:boolean config:string slack:boolean --no-context --no-schema
+Note: This depends on the router repo to be started as it calls into it to get a list of running tasks. See the router readme for more info.
 
-    # add this to router
-    resources "/users", UserController
+This typically runs in a cluster with a task router and this directly depends on it as it calls a genserver to get a list of running tasks.
 
+In debug mode items in the cluster are discovered using a UDP gossip protocol. In production mode the cluster items are discovered using a headless service in Kubernetes.
 
-    config will have everything needed for the task to execute
+# Frontend code
 
-    For example
-    Tasks of type monobject config looks like this
-    {
-        method: "some method"
-        args: []
-    }
+This repo contains a react project that can be build using a custom mix task mix webapp. In a future version this frontend javascript will be broken out into its own repo and we will integrate the build script to pull from it instead of storing the frontend javascript code in here in the Phoenix repo. All React javascript code is contained here in the frontend folder.
 
-# Build Instructions
+# Building
 
-Make sure endpoint is configured correctly in config/runtime.exs
+You have several option to this code
 
-    config :phoenix_react, PhoenixReactWeb.Endpoint,
-      url: [host: host, port: port],
-      server: true,
-      http: [
-        ip: {0, 0, 0, 0, 0, 0, 0, 0},
-        port: port
-      ],
-      secret_key_base: secret_key_base
+1. Run a debug build
 
-    # Generate a secret for our Phoenix app
-    mix phx.gen.secret
-    # It will output a very long string. Something like this:
-    B41pUFgfTJeEUpt+6TwSkbrxlAb9uibgIemaYbm1Oq+XdZ3Q96LcaW9sarbGfMhy
+   iex --name phoenix@127.0.0.1 --cookie asdf -S mix phx.server
 
-    # Now export this secret as a environment variable:
-    export SECRET_KEY_BASE=B41pUFgfTJeEUpt+6TwSkbrxlAb9uibgIemaYbm1Oq+XdZ3Q96LcaW9sarbGfMhy
+   Note that the default mode will be debug as long as MIX_ENV is not set to prod.
 
-    # Export the database URL
-    # Probably very different in production for you.
-    # I'm just using the local postgreSQL dev instance for this demo
-    export DATABASE_URL=ecto://postgres:postgres@localhost/phoenix_react_dev
+2. You can run a production release build to be distributed to the Kubernetes cluster.
 
-    # Get production dependencies
-    mix deps.get --only prod
+   docker build . -t phoeniximage
+   docker tag phoeniximage {docker-hub-username}/{default-repo-folder-name}:phoeniximage
+   docker push {docker-hub-username}/{default-repo-folder-name}:phoeniximage
 
-    # Compile the project for production
-    MIX_ENV=prod mix compile
+   Now it will be availabe for the Kubs repositiory to create containers in your Kubernetes
+   cluster. See the Phoenix_dep.yaml file in Kubs repo for an example of how it gets referenced.
 
-    # Generate static assets in case you
-    # are using Phoenix default assets pipelines
-    # For serve-side rendered pages
-    MIX_ENV=prod mix assets.deploy
+3. Run the production build locally. There remains some clean up work to do by it can
+   be done running the following commands.
 
-    # Generate our React frontend using
-    # our custom mix task
-    mix webapp
+   ```
+   mix phx.gen.secret
 
-    # Genereate the convenience scripts to assist
-    # Phoenix applicaiton deployments like running ecto migrations
-    mix phx.gen.release
+   #It will output a very long string. Something like this:
 
-    # Now we are ready to generate the Elixir Release
-    MIX_ENV=prod mix release
+   #B41pUFgfTJeEUpt+6TwSkbrxlAb9uibgIemaYbm1Oq+XdZ3Q96LcaW9sarbGfMhy
+
+   #Now export this secret as a environment variable:
+
+   export SECRET_KEY_BASE=B41pUFgfTJeEUpt+6TwSkbrxlAb9uibgIemaYbm1Oq+XdZ3Q96LcaW9sarbGfMhy
+
+   # Export the database URL
+
+   # Probably very different in production for you.
+
+   # I'm just using the local postgreSQL dev instance for this demo
+
+   export DATABASE_URL=ecto://postgres:postgres@localhost/phoenix_react_dev
+
+   # Get production dependencies
+
+   mix deps.get --only prod
+
+   # Compile the project for production
+
+   MIX_ENV=prod mix compile
+
+   # Generate static assets in case you
+
+   # are using Phoenix default assets pipelines
+
+   # For serve-side rendered pages
+
+   MIX_ENV=prod mix assets.deploy
+
+   # Generate our React frontend using
+
+   # our custom mix task
+
+   mix webapp
+
+   # Genereate the convenience scripts to assist
+
+   # Phoenix applicaiton deployments like running ecto migrations
+
+   mix phx.gen.release
+
+   # Now we are ready to generate the Elixir Release
+
+   MIX_ENV=prod mix release
+
+   ```
 
 <p>We now have our production release ready. Let’s fire it up with the following command:</p>
 
-    PHX_HOST=localhost _build/prod/rel/phoenix_react/bin/phoenix_react start
-
-
      RELEASE_COOKIE=asdf PHX_HOST=localhost _build/prod/rel/phoenix_react/bin/phoenix_react start
 
-
-    or when developing this
-
-    iex --name phoenix@127.0.0.1 --cookie asdf -S  mix phx.server
-
-    # You should an output similar to the following
-    19:52:53.813 [info] Running PhoenixReactWeb.Endpoint with cowboy 2.9.0 at :::4000 (http)
-    19:52:53.814 [info] Access PhoenixReactWeb.Endpoint at http://localhost:4000
-    # Original Generated Readme Below
+Note: You might need to experiment with setting MIX_ENV here if you dont want to use UDB gossip
+for discover of items in the cluster.

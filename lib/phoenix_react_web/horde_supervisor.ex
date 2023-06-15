@@ -16,7 +16,7 @@ defmodule TaskStatusListener.Supervisor do
             }, [{any, any, any, any, any, any} | map]}}
 
   def init(:ok) do
-
+    # in dev mode we'll use UDP gossip to discover items in the cluster
     children_dev = [
       {Cluster.Supervisor, [topologies_gossip(), [name: Cluster.Supervisor]]},
       HordeTaskRouter.HordeRegistry,
@@ -24,9 +24,19 @@ defmodule TaskStatusListener.Supervisor do
       {Phoenix.PubSub, name: :tasks}
     ]
 
+    # in production mode we'll use a headless DNS service in kubernetes
+    # to discover items in the cluster.
     children_prod = [
-      Supervisor.child_spec({Cluster.Supervisor, [topologies_worker(), [name: BackgroundJob.ClusterSupervisorPhoenix]]} , id: :phoenix_cluster_sup),
-      Supervisor.child_spec({Cluster.Supervisor, [topologies_router(), [name: BackgroundJob.ClusterSupervisorRouter]]} , id: :router_cluster_sup),
+      Supervisor.child_spec(
+        {Cluster.Supervisor,
+         [topologies_worker(), [name: BackgroundJob.ClusterSupervisorPhoenix]]},
+        id: :phoenix_cluster_sup
+      ),
+      Supervisor.child_spec(
+        {Cluster.Supervisor,
+         [topologies_router(), [name: BackgroundJob.ClusterSupervisorRouter]]},
+        id: :router_cluster_sup
+      ),
       HordeTaskRouter.HordeRegistry,
       HordeTaskRouter.NodeObserver,
       {Phoenix.PubSub, name: :tasks}
@@ -39,7 +49,6 @@ defmodule TaskStatusListener.Supervisor do
 
     Supervisor.init(children, strategy: :one_for_one)
   end
-
 
   defp topologies_gossip do
     [
@@ -74,5 +83,4 @@ defmodule TaskStatusListener.Supervisor do
       ]
     ]
   end
-
 end
