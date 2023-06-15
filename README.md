@@ -1,3 +1,19 @@
+# Introduction
+
+Farmboy is a distributed and scalable task runner. This is originally intended to be used to collect thousands of datapoints
+from an external API.
+
+The project is split up into three repos.
+
+Farmboy - is an Elixir OTP Genserver that is reponsible for discovering workers in a cluster. It uses the Quantum Elixir module to schedule tasks. It distibutes the work by choosing a node with the least load averate. It invokes Farmboy Task passing it
+the configuration whenever it is scheduled to run.
+
+Farmboy Task - is the task that you define. This repo provides a sample implementation. Tasks can publish status messages which in turn get written to a Phoenix channel so end users can see the logs in realtime.
+
+Farmboy Web - A user interface, webserver and API to configure tasks and get task status.
+
+Take a look at the in app screenshots in the Web app repo's appscreens folder.
+
 # Getting started
 
 The very first time you run you will need to create db connection and configure config/dev.exs so that the connection parameters are valid. Once valid you will need to run mix ecto.migrate in the root of this project to create the table that will be used to store task configuration.
@@ -27,7 +43,7 @@ Go to http://localhost:4000/app/
 
 # Building
 
-You have several option to this code
+You have several options to build this code
 
 1. Run a debug build
 
@@ -47,13 +63,16 @@ You have several option to this code
 
    Note that the default mode will be debug as long as MIX_ENV is not set to prod.
 
-2. You can run a production release build to be distributed to the Kubernetes cluster.
+2. You can run a production release to run in docker or kubernetes.
 
+   ```
    docker build . -t phoeniximage
    docker tag phoeniximage {docker-hub-username}/{default-repo-folder-name}:phoeniximage
    docker push {docker-hub-username}/{default-repo-folder-name}:phoeniximage
 
-   Now it will be availabe for the Kubs repositiory to create containers in your Kubernetes
+   ```
+
+   Now it will be availabe to create containers in your Kubernetes
    cluster. See the Phoenix_dep.yaml file in Kubs repo for an example of how it gets referenced.
 
 3. Run the production build locally. There remains some clean up work to do by it can
