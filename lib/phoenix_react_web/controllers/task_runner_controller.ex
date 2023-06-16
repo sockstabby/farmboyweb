@@ -2,9 +2,7 @@ defmodule PhoenixReactWeb.TaskRunnerController do
   use PhoenixReactWeb, :controller
   require Logger
 
-  def api_get(conn, _params) do
-    Logger.info("run called")
-
+  def runtask(conn, _params) do
     body = conn.body_params
 
     object = body["object"]
@@ -12,17 +10,13 @@ defmodule PhoenixReactWeb.TaskRunnerController do
     args = body["args"]
     roomid = body["roomid"]
 
-    # notice we pass the node name. this is to prevent duplicate broadcasts when we run
-    # multiple phoenix web servers in a cluster. Before we broadcast we can check to see if
-    # the api orinated from the same node. otherwise dont broadcast because it is redundant and
-    # unnecessary
     GenServer.cast(
       {:via, Horde.Registry, {Farmboy.HordeRegistry, "taskrouter"}},
       {:run_task,
        %{object: object, method: method, args: args, roomid: roomid, origin_node: node()}}
     )
 
-    conn |> json(%{message: "Hello"})
+    conn |> json(%{message: "Ran the task refresh task state to see new"})
   end
 
   def get_task_state(conn, _params) do
@@ -32,9 +26,9 @@ defmodule PhoenixReactWeb.TaskRunnerController do
     tasks =
       Enum.map(state.tasks, fn i ->
         %{
-          id: i.object,
+          id: i.instance,
           worker: i.worker,
-          method: i.method,
+          method: i.taskid,
           args: i.args,
           time_started: i.time_started
         }

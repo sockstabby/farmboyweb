@@ -5,14 +5,14 @@ from an external API.
 
 The project is split up into three repos.
 
-Farmboy - is an Elixir OTP Genserver that is reponsible for discovering workers in a cluster. It uses the Quantum Elixir module to schedule tasks. It distibutes the work by choosing a node with the least load averate. It invokes Farmboy Task passing it
+Farmboy - is an Elixir OTP Genserver that is reponsible for discovering workers in a cluster. It uses the Quantum Elixir module to schedule tasks. It distibutes the work by choosing a node with the least load average. It invokes a Farmboy Task passing it
 the configuration whenever it is scheduled to run.
 
 Farmboy Task - is the task that you define. This repo provides a sample implementation. Tasks can publish status messages which in turn get written to a Phoenix channel so end users can see the logs in realtime.
 
 Farmboy Web - A user interface, webserver and API to configure tasks and get task status.
 
-Take a look at the in app screenshots in the Web app repo's appscreens folder.
+Take a look at the in app screenshots in the Web app repo's [appscreens](https://github.com/sockstabby/farmboyweb/tree/master/appscreens) folder.
 
 # Getting started
 

@@ -20,7 +20,6 @@ defmodule PhoenixReactWeb.TasksSocket do
   # See the [`Channels guide`](https://hexdocs.pm/phoenix/channels.html)
   # for further details.
 
-
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
   # verification, you can put default assigns into
@@ -37,8 +36,6 @@ defmodule PhoenixReactWeb.TasksSocket do
   # performing token verification on connect.
   @impl true
   def connect(_params, socket, _connect_info) do
-    Logger.info("CONNECT CALLED CONNECT CALLED CONNECT CALLED CONNECT CALLED CONNECT CALLED CONNECT CALLED ")
-
     {:ok, socket}
   end
 
