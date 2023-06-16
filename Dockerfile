@@ -16,8 +16,6 @@
 ARG ELIXIR_VERSION=1.14.2
 ARG OTP_VERSION=25.2
 ARG DEBIAN_VERSION=bullseye-20221004-slim
-
-
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
@@ -102,7 +100,6 @@ COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/phoenix_react
 USER nobody
 
 ENV RELEASE_COOKIE="asdf"
-
 ENV PHX_SERVER=true
 
 
